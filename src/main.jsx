@@ -5,10 +5,11 @@ import App from './App.jsx'
 import { Provider } from 'react-redux'
 import { store } from './App/Store.js'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-   <Provider store={store}>
-   <App />
-   </Provider>
-  </StrictMode>,
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>
+  
 )
