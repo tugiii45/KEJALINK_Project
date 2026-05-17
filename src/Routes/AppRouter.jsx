@@ -1,4 +1,3 @@
-import React from 'react'
 import { createBrowserRouter, Outlet } from 'react-router-dom'
 import Login from '../Pages/Login'
 import TenantDashboard from '../Pages/TenantDashboard'
@@ -6,16 +5,14 @@ import ReportIssue from '../Pages/ReportIssue'
 import LandlordDashboard from '../Pages/LandlordDashboard'
 import TicketQueue from '../Pages/TicketQueue'
 
-const AppLayout = () => {
-    return (
-        
-        <div className = 'app-layout'>
-            <main className = 'content-container'>
-                <Outlet/>
-            </main>
-        </div>
-    );
-};
+const AppLayout = () => (
+  <div className="app-layout">
+    <main className="content-container">
+      <Outlet />
+    </main>
+  </div>
+)
+
 
 
 export const router = createBrowserRouter([
@@ -28,7 +25,7 @@ export const router = createBrowserRouter([
         path: 'tenant',
         element: <AppLayout/>,
 
-        children= [
+        children: [
             {
                 index: true,
                 element: <TenantDashboard/>

@@ -1,7 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
-import React from 'react'
+import { createSlice } from '@reduxjs/toolkit'
 
 const InitialState = {
+
     invoiceHistory: [], //List of all generated bills and invoices
     paymentHistory: [], //Records of successful transactions
     loading: false, //Tracks loading states for transatctions
@@ -11,7 +11,7 @@ const InitialState = {
 
 const PaymentSlice = createSlice({
     name: "payments",
-    InitialState,
+    initialState: InitialState,
     reducers: {
         setLoading(state, action) {
             state.loading = action.payload

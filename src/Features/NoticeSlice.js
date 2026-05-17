@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
-import React from 'react'
+import { createSlice } from '@reduxjs/toolkit'
+
 
 const InitialState = {
     notices: [],  //Holds the array of broadcast announcements
@@ -9,7 +9,7 @@ const InitialState = {
 
 const NoticeSlice = createSlice({
     name: "notices",
-    InitialState, 
+    initialState: InitialState, 
     reducers: {
         setLoading(state, action) {
             state.loading = action.payload;
