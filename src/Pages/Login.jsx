@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../Features/AuthSlice'
+import { loginSuccess } from '../Features/AuthSlice'
+
+
 
 function Login() {
   const dispatch = useDispatch()
@@ -30,7 +32,7 @@ function Login() {
     const dummyToken = 'mock-jwt-token-kejalink'
 
     // Dispatching to the Redux store
-    dispatch(login({ user: dummyUser, token: dummyToken }))
+    dispatch(loginSuccess(dummyUser))
 
     // Redirect user dynamically based on selected role
     if (role === 'Landlord' || role === 'landlord') {
@@ -43,53 +45,65 @@ function Login() {
 
   return (
     <>
-    <div className='login-container'>
+      <div className='login-container'>
         <div className='login-card'>
-            <h1 className='brand-logo'>KEJALINK</h1>
-            <p className='brand-tagline'>Seamless Property & Tenant Management</p>
+          <h1 className='brand-logo'>KEJALINK</h1>
+          <p className='brand-tagline'>Seamless Property & Tenant Management</p>
 
-            {/*Role Selector Tabs*/}
-            <div className='role-selector'>
-                <button type='button' className={`role-tab ${role=== 'tenant' ? 'active' : ''}`} onClick={() => setRole('tenant')}>Tenant<div/></button>
+          {/* Role Selector (Dropdown) */}
+          <div className='role-selector'>
+            <label htmlFor="role" style={{ display: 'block', marginBottom: 6 }}>
+              Select role
+            </label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              style={{ padding: 10, width: '100%' }}
+            >
+              <option value="tenant">Tenant</option>
+              <option value="landlord">Landlord</option>
+            </select>
+          </div>
         </div>
-    </div>
-    </div>
+      </div>
 
-        {/* Form handling login */}
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+      {/* Form handling login */}
+      <form onSubmit={handleSubmit} className="login-form">
+        <div className="form-group">
+          <label htmlFor="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)} 
-            />
-          </div>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
-          <button type="submit" className="submit-btn">
-            Sign In as {role.charAt(0).toUpperCase() + role.slice(1)}
-          </button>
-        </form>
-      </>
-    
-      
+        <button type="submit" className="submit-btn">
+          Sign In as {role.charAt(0).toUpperCase() + role.slice(1)}
+        </button>
+      </form>
+    </>
   )
 }
 
 export default Login
+
+
+
 
     
 
