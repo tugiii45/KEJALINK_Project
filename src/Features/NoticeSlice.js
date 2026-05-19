@@ -1,47 +1,44 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
 
-
-const InitialState = {
-    notices: [],  //Holds the array of broadcast announcements
-    loading: false, //Tracks if notices are loading from the server
-    error: null  // Catches any loading errors
+const initialState = {
+  notices: [
+    {
+      id: 1,
+      title: 'Water Shortage Notice',
+      message: 'Routine tank cleanups scheduled for Wednesday 8 AM to 4 PM. Please store water.',
+      date: 'May 19, 2026',
+      category: 'Utility',
+      importance: 'high',
+      isPinned: false
+    }
+  ]
 };
 
-const NoticeSlice = createSlice({
-    name: "notices",
-    initialState: InitialState, 
-    reducers: {
-        setLoading(state, action) {
-            state.loading = action.payload;
-            
-        },
-
-        setError(state, action) {
-            state.error = action.payload;
-            state.loading = false;
-        },
-
-        //Fills the state with notices fetched from your database
-        setNotices(state, action) {
-            state.notices = action.payload;
-            state.loading = false;
-            state.error = null;
-        },
-
-        //Allows a landlord to postr a brand new notice
-        addNotice(state, action) {
-            state.notices.unshift(action.payload); // Unshift puts the newest notice at the top of the list
-        },
-
-        //Allows a landlord to delete a notice
-        deleteNotice(state, action) {
-            state.notices = state.notices.filter(notice => notice.id !== notice.id);
-        }, 
-        
+const noticeSlice = createSlice({
+  name: 'notices',
+  initialState,
+  reducers: {
+    addNotice: (state, action) => {
+      // If the landlord wants to pin this new notice, we unpin previous notices first (optional)
+      if (action.payload.isPinned) {
+        state.notices.forEach(notice => notice.isPinned = false);
+      }
+      // Add the new notice to the beginning of the array
+      state.notices.unshift(action.payload);
     },
+    togglePinNotice: (state, action) => {
+      const noticeId = action.payload;
+      state.notices.forEach(notice => {
+        if (notice.id === noticeId) {
+          notice.isPinned = !notice.isPinned;
+        } else if (!notice.isPinned) {
+          // If setting a single pinned item, keep others false
+          notice.isPinned = false;
+        }
+      });
+    }
+  }
 });
 
-//Export the actions for my components for use in my react components
-
-export const { setLoading, setError, setNotices, addNotice, deleteNotice } = NoticeSlice.actions;
-export default NoticeSlice.reducer
+export const { addNotice, togglePinNotice } = noticeSlice.actions;
+export default noticeSlice.reducer;
