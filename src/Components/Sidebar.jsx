@@ -38,6 +38,20 @@ function Sidebar() {
             >
               Dashboard
             </NavLink>
+
+            <NavLink
+              to="/payment-dashboard"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                  isActive
+                    ? 'bg-green-50 border-green-200 text-green-700'
+                    : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
+                }`
+              }
+            >
+              Payments
+            </NavLink>
+
             <NavLink
               to="/report-issue"
               className={({ isActive }) =>

@@ -6,6 +6,9 @@ import { addNotice } from '../Features/NoticeSlice'
 
 function LandlordDashboard() {
   const dispatch = useDispatch()
+
+
+  
   const { tickets } = useSelector((state) => state.maintenance)
 
   const totalActive = tickets.filter((t) => t.status !== 'Resolved').length
