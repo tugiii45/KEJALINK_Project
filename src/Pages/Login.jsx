@@ -74,7 +74,7 @@ function Login({ onLoginSuccess, onToggleToSignUp }) {
         } else if (role === 'landlord') {
           // Landlord goes to property management dashboard
           navigate('/landlord-dashboard', { replace: true });
-        else {
+        } else {
           console.log('Unknown role; redirecting to /.');
           navigate('/', { replace: true });
         }
