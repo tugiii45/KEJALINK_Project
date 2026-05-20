@@ -1,5 +1,14 @@
+/**
+ * Maintenance Tickets Redux Slice
+ * 
+ * Manages all maintenance requests submitted by tenants.
+ * Stores tickets with status (Pending → In Progress → Resolved)
+ * Used on both TenantDashboard (viewing) and LandlordDashboard (managing)
+ */
+
 import { createSlice } from '@reduxjs/toolkit'
 
+// Initial state: empty tickets array
 const InitialState = {
   tickets: [], // Stores the list of all maintenance issues
   loading: false, // Tracks if the data is being fetched or not

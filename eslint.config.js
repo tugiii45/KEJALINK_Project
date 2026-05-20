@@ -1,3 +1,17 @@
+/**
+ * ESLint Configuration
+ * 
+ * Configures code quality rules for JavaScript/JSX files.
+ * 
+ * Extends:
+ * - @eslint/js: Base JavaScript rules
+ * - react-hooks: Enforces React Hooks best practices
+ * - react-refresh: Ensures compatibility with Vite's React refresh
+ * 
+ * Run: npm run lint (to check code)
+ * This helps catch bugs and enforce consistent code style
+ */
+
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

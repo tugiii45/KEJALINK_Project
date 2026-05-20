@@ -1,3 +1,22 @@
+/**
+ * Ticket Queue Page (for Landlords)
+ * 
+ * Centralized view of ALL maintenance tickets across the property.
+ * Allows filtering by status and priority to focus on important issues.
+ * 
+ * Features:
+ * - Status filter: All / Pending / In Progress / Resolved
+ * - Priority filter: All / High / Medium / Low
+ * - Table shows: ID, Unit, Description, Priority, Status
+ * - Real-time count of matching tickets
+ * 
+ * Uses:
+ * - Redux maintenance.tickets for data source
+ * - useMemo to efficiently filter without re-rendering unnecessarily
+ * 
+ * To update status, landlord goes to LandlordDashboard and clicks status buttons
+ */
+
 import React, { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 

@@ -1,3 +1,24 @@
+/**
+ * Report Issue Page
+ * 
+ * Dedicated form for tenants to report maintenance issues.
+ * Similar to the form on TenantDashboard but with more detail.
+ * 
+ * Form fields:
+ * - Issue Title (e.g., "Leaking kitchen sink")
+ * - Unit Number (which apartment/house)
+ * - Category (Plumbing, Security, Electrical, Garbage, Other)
+ * - Description (detailed explanation of the problem)
+ * - Urgency Level (Low, Medium, High)
+ * 
+ * On submit:
+ * - Adds ticket to Redux maintenance state
+ * - Displays success/error message
+ * - Clears form for next submission
+ * 
+ * Data flows to LandlordDashboard where landlord can manage tickets
+ */
+
 import React, { useState } from 'react'
 
 function ReportIssue() {

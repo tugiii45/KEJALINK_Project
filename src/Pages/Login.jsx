@@ -1,131 +1,186 @@
-import React, { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+/**
+ * Login Page
+ * 
+ * Allows users (tenants or landlords) to sign in with email/password.
+ * 
+ * On successful login:
+ * 1. Fetches user profile from Firestore (includes role and house number)
+ * 2. Updates Redux auth state (so app knows user is logged in)
+ * 3. Redirects to appropriate dashboard (/tenant-dashboard or /landlord-dashboard)
+ * 
+ * Important: AppRouter checks Redux auth.isAuthenticated to protect routes
+ */
 
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { auth, db } from '../../firebase';
+
+
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { loginSuccess } from '../Features/AuthSlice'
 
-function Login() {
-  const dispatch = useDispatch()
+function Login({ onLoginSuccess, onToggleToSignUp }) {
+  // Redux hook to update global auth state after successful login
+  const dispatch = useDispatch();
+  // Router hook for programmatic navigation to dashboards
   const navigate = useNavigate()
+  
+  // Local state for form fields
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');       // Display error messages to user
+  const [loading, setLoading] = useState(false); // Disable button while submitting
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [role, setRole] = useState('tenant')
+  // Handle form submission: authenticate with Firebase and load user profile
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    if (!email.trim() || !password) {
-      alert('Please fill in all fields')
-      return
+    // If firebase isn't wired yet (auth/db are null), avoid runtime crashes.
+    if (!auth || !db) {
+      setError('Authentication is not configured (missing Firebase auth/db).');
+      setLoading(false);
+      return;
     }
 
-    const dummyUser = {
-      email: email.trim(),
-      role,
-      name: role === 'tenant' ? 'Jane Tenant' : 'John Landlord',
+    try {
+      // Step 1: Authenticate with Firebase Auth (email/password)
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Step 2: Fetch user's profile document from Firestore
+      // This contains role (Tenant/Landlord) and houseNumber
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        // Profile found! Extract user data
+        const profile = userDocSnap.data();
+
+        // IMPORTANT: AppRouter checks Redux auth.isAuthenticated to allow navigation.
+        // Must update Redux store, otherwise protected routes redirect back to /login
+        if (typeof onLoginSuccess === 'function') onLoginSuccess(profile);
+        dispatch(loginSuccess(profile)); // This unlocks protected routes
+
+        // Step 3: Route to appropriate dashboard based on user role
+        const role = profile?.role?.toLowerCase();
+        console.log('Login profile role:', profile?.role, 'normalized:', role);
+        if (role === 'tenant') {
+          // Tenant goes to rental/maintenance dashboard
+          navigate('/tenant-dashboard', { replace: true });
+        } else if (role === 'landlord') {
+          // Landlord goes to property management dashboard
+          navigate('/landlord-dashboard', { replace: true });
+        else {
+          console.log('Unknown role; redirecting to /.');
+          navigate('/', { replace: true });
+        }
+      } else {
+        setError('No structural profile ledger exists for this account.');
+      }
+    } catch (err) {
+      // Handle Firebase authentication errors
+      console.error(err);
+      const code = err?.code;
+
+      // Provide helpful error messages based on Firebase error codes
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
+        // Wrong password error
+        setError('Incorrect email or password.');
+      } else if (code === 'auth/user-not-found') {
+        // No user account with this email
+        setError('No account found for this email. Please sign up first.');
+      } else if (code === 'auth/network-request-failed') {
+        // Internet connection issue
+        setError('Network error. Please check your internet connection and try again.');
+      } else if (code === 'auth/too-many-requests') {
+        // Too many failed login attempts - Firebase security measure
+        setError('Too many attempts. Please wait a bit and try again.');
+      } else {
+        // Other Firebase errors
+        setError(err?.message ? err.message.replace('Firebase: ', '') : 'Login failed.');
+      }
+    } finally {
+      // Re-enable submit button whether login succeeded or failed
+      setLoading(false);
     }
+  };
 
-    dispatch(loginSuccess(dummyUser))
-
-    if (role === 'landlord') navigate('/landlord-dashboard')
-    else navigate('/tenant-dashboard')
-  }
-
+  // Render login form UI
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-10">
-      <div className="w-full max-w-5xl grid md:grid-cols-2 gap-6">
-        <div className="hidden md:flex flex-col justify-between rounded-2xl bg-gradient-to-br from-green-600 to-emerald-500 p-8 text-white overflow-hidden">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight">KEJALINK</h1>
-            <p className="mt-3 text-white/90">
-              Seamless Property & Tenant Management
-            </p>
-          </div>
-          <div>
-            <div className="text-sm font-semibold text-white/90">
-              Fast access for tenants and landlords
-            </div>
-            <ul className="mt-4 space-y-2 text-white/90 text-sm">
-              <li>• Submit maintenance requests</li>
-              <li>• Track ticket status</li>
-              <li>• Broadcast community notices</li>
-            </ul>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      {/* Login card container */}
+      <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+        
+        {/* Header with app logo */}
+        <div className="text-center">
+          <h2 className="text-3xl font-black tracking-tight text-blue-600">KEJALINK</h2>
+          <p className="text-sm text-gray-400 mt-1">Sign in to manage your caretaker profile</p>
         </div>
 
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-7">
-          <h2 className="text-xl font-bold text-slate-900">Sign in</h2>
-          <p className="text-sm text-slate-600 mt-1">
-            Choose your role and continue.
-          </p>
-
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div className="form-group">
-              <label htmlFor="role" className="block text-sm font-medium text-slate-700">
-                Select role
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                <option value="tenant">Tenant</option>
-                <option value="landlord">Landlord</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
-            <div className="form-group">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 transition-colors"
-            >
-              Sign In as {role.charAt(0).toUpperCase() + role.slice(1)}
-            </button>
-          </form>
-
-          <div className="mt-5 text-xs text-slate-500">
-            Demo login (uses mock data). No real authentication is performed.
+        {/* Login form with email/password fields */}
+        <form onSubmit={handleLogin} className="space-y-4">
+          {/* Email input field */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 mb-1">Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="yourname@domain.com"
+              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+            />
           </div>
+
+          {/* Password input field */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+            />
+          </div>
+
+          {/* Error message display */}
+          {error && (
+            <div className="p-3 bg-red-50 text-red-600 text-xs font-medium rounded-xl border border-red-100">
+              ⚠️ {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-blue-100 disabled:bg-blue-400"
+          >
+            {loading ? 'Verifying Credentials...' : 'Secure Access'}
+          </button>
+        </form>
+
+        {/* Clean, inline switcher footer */}
+        <div className="text-center pt-2 border-t border-gray-50">
+          <p className="text-xs text-gray-500">
+            Don't have an account?{' '}
+            <button 
+              onClick={() => navigate('/signup')} 
+              type="button" 
+              className="text-blue-600 font-bold hover:underline focus:outline-none"
+            >
+              Sign up here
+            </button>
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Login
-
+export default Login;

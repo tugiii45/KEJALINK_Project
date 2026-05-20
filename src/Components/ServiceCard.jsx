@@ -1,3 +1,22 @@
+/**
+ * Service Card Component
+ * 
+ * Reusable card component for displaying features/services.
+ * Used on TenantDashboard to show quick action cards.
+ * 
+ * Props:
+ * - icon: Emoji or icon to display
+ * - title: Feature name (e.g., "Pay Rent")
+ * - description: Brief explanation of what this does
+ * - badgeText: Small label (e.g., "Payments")
+ * - onCardClick: Callback function when card is clicked
+ * 
+ * Styling:
+ * - Hover effect with shadow and smooth animation
+ * - Green action button area at bottom
+ * - Badge positioned top-right
+ */
+
 import React from 'react'
 
 function ServiceCard({icon, title, description, badgeText, onCardClick}) {

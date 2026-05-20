@@ -1,5 +1,14 @@
+/**
+ * Authentication Redux Slice
+ * 
+ * Manages user login/logout state and authentication status.
+ * Stores user information (name, email, role: 'Tenant'/'Landlord', house number, uid)
+ * Controls navigation restrictions - pages check if isAuthenticated is true
+ */
+
 import { createSlice } from '@reduxjs/toolkit';
 
+// Initial state: user is logged out with no profile
 const initialState = {
   isAuthenticated: false,
   user: null, // This will hold { id, username, role: 'tenant' | 'landlord' }

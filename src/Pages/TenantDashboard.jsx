@@ -1,3 +1,23 @@
+/**
+ * Tenant Dashboard
+ * 
+ * Home page for tenant users. Shows:
+ * - Quick action cards (Pay Rent, Report Issue)
+ * - Community notices from landlord
+ * - Maintenance request form
+ * - History of submitted maintenance tickets
+ * 
+ * Key Features:
+ * 1. Service cards link to PaymentDashboard and ReportIssue page
+ * 2. Notices display any announcements from the landlord
+ * 3. Maintenance form allows tenants to report issues with priority levels
+ * 4. Ticket table shows current and past maintenance requests
+ * 
+ * Data sources:
+ * - Redux notices state: community announcements
+ * - Redux maintenance state: user's maintenance tickets
+ */
+
 import React, { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -8,9 +28,12 @@ import NoticeCard from '../Components/Noticecard'
 function TenantDashboard() {
   const dispatch = useDispatch()
 
+  // Redux: Fetch maintenance tickets and notices from global state
   const { tickets } = useSelector((state) => state.maintenance)
   const { notices } = useSelector((state) => state.notices)
 
+  // Feature cards data - memoized to prevent re-rendering on every render
+  // These are static items that describe available tenant features
   const features = useMemo(
     () => [
       {
@@ -31,28 +54,34 @@ function TenantDashboard() {
     []
   )
 
-  const [unit, setUnit] = useState('')
-  const [description, setDescription] = useState('')
-  const [priority, setPriority] = useState('Medium')
+  // Local form state for submitting maintenance requests
+  const [unit, setUnit] = useState('')           // Which unit has the issue
+  const [description, setDescription] = useState('') // Detailed description of problem
+  const [priority, setPriority] = useState('Medium') // How urgent is this issue
 
+  // Handle form submission when tenant submits a maintenance request
   const handleSubmit = (e) => {
     e.preventDefault()
 
+    // Validate that all required fields are filled
     if (!unit.trim() || !description.trim()) {
       alert('Please fill out all required fields')
       return
     }
 
+    // Create a new maintenance ticket object
     const newTicket = {
-      id: Date.now().toString(),
+      id: Date.now().toString(),        // Unique ID based on current timestamp
       unit: unit.trim(),
       description: description.trim(),
       priority,
-      status: 'Pending',
+      status: 'Pending',                // Landlord will update this to 'In Progress' or 'Resolved'
     }
 
+    // Add to Redux state so it appears immediately in the table below
     dispatch(addTicket(newTicket))
 
+    // Clear form fields for next submission
     setUnit('')
     setDescription('')
     setPriority('Medium')
@@ -60,12 +89,15 @@ function TenantDashboard() {
 
   return (
     <>
+      {/* Page header section */}
       <div>
         <h1>KejaLink Tenant Portal</h1>
         <p>File new maintenance requests and track your current status</p>
       </div>
 
+      {/* Quick action cards - allows tenant to navigate to main features */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
+        {/* Render ServiceCard component for each feature (Pay Rent, Report Issue) */}
         {features.map((item, index) => (
           <ServiceCard
             key={index}
@@ -78,8 +110,10 @@ function TenantDashboard() {
         ))}
       </div>
 
+      {/* Community notices section - displays all landlord announcements */}
       <h2 className="text-xl font-bold text-slate-800 mb-4">Active Notices</h2>
       <div className="max-w-2xl mb-10">
+        {/* Show notices if any exist, otherwise show "no notices" message */}
         {notices?.length ? (
           notices.map((notice, index) => (
             <NoticeCard

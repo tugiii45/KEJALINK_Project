@@ -1,4 +1,27 @@
 
+/**
+ * Sidebar Navigation Component
+ * 
+ * Main navigation bar shown on all protected pages (after login).
+ * Displays different navigation links based on user role.
+ * 
+ * TENANT ROUTES:
+ * - /tenant-dashboard: Home/overview
+ * - /payment-dashboard: Pay rent and view payment history
+ * - /report-issue: Report maintenance problems
+ * 
+ * LANDLORD ROUTES:
+ * - /landlord-dashboard: Property overview and management
+ * - /ticket-queue: View all maintenance tickets
+ * - /payment-dashboard: Verify tenant payments
+ * 
+ * Features:
+ * - Displays current user role
+ * - Active link highlighting (green background)
+ * - Logout button that redirects to /login
+ * - Responsive design
+ */
+
 import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -90,6 +113,19 @@ function Sidebar() {
               }
             >
               Ticket Queue
+            </NavLink>
+
+            <NavLink
+              to="/payment-dashboard"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                  isActive
+                    ? 'bg-green-50 border-green-200 text-green-700'
+                    : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
+                }`
+              }
+            >
+              Payments
             </NavLink>
           </>
         )}

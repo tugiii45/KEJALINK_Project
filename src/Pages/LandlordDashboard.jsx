@@ -1,3 +1,23 @@
+/**
+ * Landlord Dashboard
+ * 
+ * Home page for landlord/property owner users. Shows:
+ * - Quick link to verify tenant payments
+ * - Statistics: Active issues, Pending tickets, Resolved tickets
+ * - Maintenance ticket queue with status transition buttons
+ * - Notice broadcast form (for posting community announcements)
+ * 
+ * Key Features:
+ * 1. Status transitions: Pending → In Progress → Resolved (one-way flow)
+ * 2. Post notices to all tenants
+ * 3. View all maintenance tickets from all units
+ * 4. Quick access to payment verification dashboard
+ * 
+ * Data sources:
+ * - Redux maintenance state: all tenant tickets
+ * - Redux notices state: all posted notices
+ */
+
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -7,42 +27,49 @@ import { addNotice } from '../Features/NoticeSlice'
 function LandlordDashboard() {
   const dispatch = useDispatch()
 
-
-  
+  // Fetch maintenance tickets from Redux state
   const { tickets } = useSelector((state) => state.maintenance)
 
+  // Calculate key statistics for the dashboard header
+  // Count total active (unresolved) tickets
   const totalActive = tickets.filter((t) => t.status !== 'Resolved').length
+  // Count tickets still in Pending status
   const pendingCount = tickets.filter((t) => t.status === 'Pending').length
+  // Count tickets already resolved
   const resolvedCount = tickets.filter((t) => t.status === 'Resolved').length
 
-  const [title, setTitle] = useState('')
-  const [message, setMessage] = useState('')
-  const [category, setCategory] = useState('')
-  const [importance, setImportance] = useState('')
-  const [isPinned, setIsPinned] = useState(false)
+  // Form state for posting new notices to tenants
+  const [title, setTitle] = useState('')          // Notice headline
+  const [message, setMessage] = useState('')      // Full notice content
+  const [category, setCategory] = useState('')    // Type of notice (Utility, Maintenance, etc)
+  const [importance, setImportance] = useState('') // Priority level
+  const [isPinned, setIsPinned] = useState(false) // Pin to top flag
 
   const handlePostNotice = (e) => {
     e.preventDefault()
 
+    // Validate required fields
     if (!title.trim() || !message.trim()) {
       alert('Please fill out all required fields')
       return
     }
 
+    // Create new notice object with metadata
     const newNotice = {
-      id: Date.now(),
-      title: title.trim(),
-      message: message.trim(),
-      category: category.trim(),
-      importance,
-      isPinned,
+      id: Date.now(),                     // Unique timestamp ID
+      title: title.trim(),                // Notice title text
+      message: message.trim(),            // Full notice content
+      category: category.trim(),          // Category type
+      importance,                         // Priority level
+      isPinned,                           // Whether pinned to top
       date: new Date().toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
-      }),
+      }),                                 // Formatted date stamp
     }
 
+    // Add notice to Redux store to broadcast to all tenants
     dispatch(addNotice(newNotice))
 
     setTitle('')
@@ -66,6 +93,15 @@ function LandlordDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto">
+        {/* Quick navigation for landlord to verify payments */}
+        <div className="mb-4">
+          <a
+            href="/payment-dashboard"
+            className="inline-flex items-center rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100"
+          >
+            Verify Payments
+          </a>
+        </div>
         {/* Overview */}
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">

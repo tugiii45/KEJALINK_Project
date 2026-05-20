@@ -1,5 +1,14 @@
+/**
+ * Community Notices Redux Slice
+ * 
+ * Manages notices/announcements posted by landlords to all tenants.
+ * Notices include information about maintenance, utilities, policies, etc.
+ * Displayed prominently on TenantDashboard
+ */
+
 import { createSlice } from '@reduxjs/toolkit';
 
+// Initial state: includes a sample notice about water shortage
 const initialState = {
   notices: [
     {

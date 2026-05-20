@@ -1,3 +1,15 @@
+/**
+ * Application Router Configuration
+ * 
+ * Defines all routes and page layouts:
+ * - Public routes: /login, /signup (anyone can access)
+ * - Protected routes: /tenant-dashboard, /landlord-dashboard, /payment-dashboard, etc.
+ *   (only accessible if user is authenticated - AppLayout checks this)
+ * 
+ * AppLayout component wraps protected routes and includes the Sidebar navigation.
+ * Navigation guards redirect unauthenticated users back to /login
+ */
+
 import React from 'react'
 import {
   createBrowserRouter,
@@ -9,11 +21,13 @@ import { useSelector } from 'react-redux'
 
 // Import Pages
 import Login from '../Pages/Login'
+import SignUpShim from './SignUpShim'
 import TenantDashboard from '../Pages/TenantDashboard'
 import LandlordDashboard from '../Pages/LandlordDashboard'
 import ReportIssue from '../Pages/ReportIssue'
 import TicketQueue from '../Pages/TicketQueue'
 import PaymentDashboard from '../Pages/PaymentDashboard'
+
 
 // Import Layout Components
 import Sidebar from '../Components/Sidebar'
@@ -41,6 +55,10 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: <Login />,
+  },
+  {
+    path: '/signup',
+    element: <SignUpShim />,
   },
   {
     path: '/',
