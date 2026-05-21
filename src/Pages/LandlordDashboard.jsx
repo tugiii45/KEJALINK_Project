@@ -268,19 +268,26 @@ function LandlordDashboard() {
                 <label className="block text-sm font-semibold text-slate-600 mb-1">
                   Category
                 </label>
-                <input
-                  type="text"
+                <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full p-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="e.g., Electricity"
-                />
+                >
+                  <option value="">Select</option>
+                  <option value="Electricity">Electricity</option>
+                  <option value="Security">Security</option>
+                  <option value="Plumbing">Plumbing</option>
+                  <option value="interior">interior</option>
+                  <option value="Common areas">Common areas</option>
+                  <option value="Pest control">Pest control</option>
+                </select>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-slate-600 mb-1">
                   Importance
                 </label>
+
                 <select
                   value={importance}
                   onChange={(e) => setImportance(e.target.value)}
