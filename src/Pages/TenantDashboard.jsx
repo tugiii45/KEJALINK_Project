@@ -20,6 +20,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 import { addTicket } from '../Features/MaintenanceSlice'
 import ServiceCard from '../Components/ServiceCard'
@@ -27,6 +28,7 @@ import NoticeCard from '../Components/NoticeCard'
 
 function TenantDashboard() {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   // Redux: Fetch maintenance tickets and notices from global state
   const { tickets } = useSelector((state) => state.maintenance)
@@ -90,9 +92,9 @@ function TenantDashboard() {
   return (
     <>
       {/* Page header section */}
-      <div>
-        <h1>KejaLink Tenant Portal</h1>
-        <p>File new maintenance requests and track your current status</p>
+      <div className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">KejaLink Tenant Portal</h1>
+        <p className="text-slate-600 mt-2">File new maintenance requests and track your current status</p>
       </div>
 
       {/* Quick action cards - allows tenant to navigate to main features */}
@@ -105,7 +107,13 @@ function TenantDashboard() {
             title={item.title}
             description={item.description}
             badgeText={item.badgeText}
-            onCardClick={() => console.log(`Opening ${item.title}...`)}
+            onCardClick={() => {
+              if (item.title === 'Pay Rent') {
+                navigate('/payment-dashboard')
+              } else if (item.title === 'Report an Issue') {
+                navigate('/report-issue')
+              }
+            }}
           />
         ))}
       </div>

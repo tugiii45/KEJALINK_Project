@@ -32,6 +32,19 @@ import PaymentDashboard from '../Pages/PaymentDashboard'
 // Import Layout Components
 import Sidebar from '../Components/Sidebar'
 
+// Role-based route protection component
+function RoleProtectedRoute({ requiredRole, children }) {
+  const { user } = useSelector((state) => state.auth)
+  const userRole = user?.role?.toLowerCase()
+  const requiredRoleLower = requiredRole.toLowerCase()
+
+  if (userRole !== requiredRoleLower) {
+    return <Navigate to="/tenant-dashboard" replace />
+  }
+
+  return children
+}
+
 // 1) Shared Auth layout
 function AppLayout() {
   const { isAuthenticated } = useSelector((state) => state.auth)
@@ -92,11 +105,19 @@ const router = createBrowserRouter([
       },
       {
         path: 'landlord-dashboard',
-        element: <LandlordDashboard />,
+        element: (
+          <RoleProtectedRoute requiredRole="landlord">
+            <LandlordDashboard />
+          </RoleProtectedRoute>
+        ),
       },
       {
         path: 'ticket-queue',
-        element: <TicketQueue />,
+        element: (
+          <RoleProtectedRoute requiredRole="landlord">
+            <TicketQueue />
+          </RoleProtectedRoute>
+        ),
       },
       {
         path: '*',

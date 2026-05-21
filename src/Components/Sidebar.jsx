@@ -83,7 +83,7 @@ function Sidebar() {
             <NavLink
               to="/tenant-dashboard"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
                   isActive
                     ? 'bg-green-50 border-green-200 text-green-700'
                     : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
@@ -96,7 +96,7 @@ function Sidebar() {
             <NavLink
               to="/payment-dashboard"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
                   isActive
                     ? 'bg-green-50 border-green-200 text-green-700'
                     : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
@@ -109,7 +109,7 @@ function Sidebar() {
             <NavLink
               to="/report-issue"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
                   isActive
                     ? 'bg-green-50 border-green-200 text-green-700'
                     : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
@@ -124,7 +124,7 @@ function Sidebar() {
             <NavLink
               to="/landlord-dashboard"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
                   isActive
                     ? 'bg-green-50 border-green-200 text-green-700'
                     : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
@@ -136,7 +136,7 @@ function Sidebar() {
             <NavLink
               to="/ticket-queue"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
                   isActive
                     ? 'bg-green-50 border-green-200 text-green-700'
                     : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
@@ -149,7 +149,7 @@ function Sidebar() {
             <NavLink
               to="/payment-dashboard"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                `px-3 py-2 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
                   isActive
                     ? 'bg-green-50 border-green-200 text-green-700'
                     : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
