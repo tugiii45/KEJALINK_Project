@@ -44,13 +44,16 @@ function LandlordDashboard() {
   const [category, setCategory] = useState('')    // Type of notice (Utility, Maintenance, etc)
   const [importance, setImportance] = useState('') // Priority level
   const [isPinned, setIsPinned] = useState(false) // Pin to top flag
+  
+  // Inline message state for form feedback
+  const [feedbackMessage, setFeedbackMessage] = useState(null) // { type: 'error'|'success', text: string }
 
   const handlePostNotice = (e) => {
     e.preventDefault()
 
     // Validate required fields
     if (!title.trim() || !message.trim()) {
-      alert('Please fill out all required fields')
+      setFeedbackMessage({ type: 'error', text: 'Please fill out all required fields' })
       return
     }
 
@@ -77,8 +80,10 @@ function LandlordDashboard() {
     setCategory('')
     setImportance('')
     setIsPinned(false)
-
-    alert('Notice posted successfully')
+    
+    // Show success message and auto-clear after 3 seconds
+    setFeedbackMessage({ type: 'success', text: 'Notice posted successfully!' })
+    setTimeout(() => setFeedbackMessage(null), 3000)
   }
 
   const handleStatusTransition = (ticketId, currentStatus) => {
@@ -113,6 +118,17 @@ function LandlordDashboard() {
             Manage maintenance requests and broadcast community notices.
           </p>
         </div>
+
+        {/* Inline message display for form feedback */}
+        {feedbackMessage && (
+          <div className={`mb-6 p-4 rounded-lg border ${
+            feedbackMessage.type === 'error' 
+              ? 'bg-red-50 border-red-200 text-red-800' 
+              : 'bg-green-50 border-green-200 text-green-800'
+          }`}>
+            {feedbackMessage.type === 'error' ? '❌' : '✅'} {feedbackMessage.text}
+          </div>
+        )}
 
         <div className="grid md:grid-cols-3 gap-4 mb-6">
           <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-5">

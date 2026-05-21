@@ -21,12 +21,15 @@ function TenantMaintenance() {
   const [unit, setUnit] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState('Medium')
+  
+  // Inline message state for form validation feedback
+  const [message, setMessage] = useState(null)   // { type: 'error'|'success', text: string }
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
     if (!unit.trim() || !description.trim()) {
-      alert('Please fill out all required fields')
+      setMessage({ type: 'error', text: 'Please fill out all required fields' })
       return
     }
 
@@ -43,6 +46,9 @@ function TenantMaintenance() {
     setUnit('')
     setDescription('')
     setPriority('Medium')
+    // Show success message and auto-clear after 3 seconds
+    setMessage({ type: 'success', text: 'Maintenance request submitted successfully!' })
+    setTimeout(() => setMessage(null), 3000)
   }
 
   return (
@@ -51,6 +57,17 @@ function TenantMaintenance() {
         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">Maintenance Requests</h1>
         <p className="text-slate-600 mt-2">Submit issues and track your ticket status</p>
       </div>
+
+      {/* Inline message display for form feedback */}
+      {message && (
+        <div className={`mb-6 p-4 rounded-lg border ${
+          message.type === 'error' 
+            ? 'bg-red-50 border-red-200 text-red-800' 
+            : 'bg-green-50 border-green-200 text-green-800'
+        }`}>
+          {message.type === 'error' ? '❌' : '✅'} {message.text}
+        </div>
+      )}
 
       <div className="max-w-2xl">
         <h2 className="text-xl font-bold text-slate-800 mb-4">Submit a Maintenance request</h2>

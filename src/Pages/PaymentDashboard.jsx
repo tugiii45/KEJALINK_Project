@@ -63,6 +63,9 @@ function PaymentDashboard() {
 
   const [loading, setLoading] = useState(false)
   const [currentReceipt, setCurrentReceipt] = useState(null)
+  
+  // Inline message state for form feedback
+  const [feedbackMessage, setFeedbackMessage] = useState(null) // { type: 'error'|'success', text: string }
 
   const [formData, setFormData] = useState({
     amount: '',
@@ -86,7 +89,8 @@ function PaymentDashboard() {
 
     // Verify user profile has all required information
     if (!activeUser?.fullName || !activeUser?.houseNumber || !activeUser?.uid) {
-      alert('Missing tenant profile details. Please log in again.')
+      setFeedbackMessage({ type: 'error', text: 'Missing tenant profile details. Please log in again.' })
+      setLoading(false)
       return
     }
 
@@ -119,7 +123,7 @@ function PaymentDashboard() {
       await addDoc(collection(db, 'payments'), newPayment)
     } catch (err) {
       console.error(err)
-      alert('Failed to submit payment. Please try again.')
+      setFeedbackMessage({ type: 'error', text: 'Failed to submit payment. Please try again.' })
     } finally {
       // Clear form fields after submission
       setFormData((prev) => ({ ...prev, amount: '', referenceCode: '' }))
@@ -149,7 +153,7 @@ function PaymentDashboard() {
       await updateDoc(doc(db, 'payments', match.id), { status: newStatus })
     } catch (err) {
       console.error(err)
-      alert('Failed to update verification status in database.')
+      setFeedbackMessage({ type: 'error', text: 'Failed to update verification status in database.' })
     }
   }
 
@@ -204,6 +208,17 @@ function PaymentDashboard() {
             : 'Log payments for verification'}
         </div>
       </div>
+
+      {/* Inline message display for form feedback */}
+      {feedbackMessage && (
+        <div className={`p-4 rounded-lg border ${
+          feedbackMessage.type === 'error' 
+            ? 'bg-red-50 border-red-200 text-red-800' 
+            : 'bg-green-50 border-green-200 text-green-800'
+        }`}>
+          {feedbackMessage.type === 'error' ? '❌' : '✅'} {feedbackMessage.text}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left panel */}

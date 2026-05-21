@@ -60,6 +60,9 @@ function TenantDashboard() {
   const [unit, setUnit] = useState('')           // Which unit has the issue
   const [description, setDescription] = useState('') // Detailed description of problem
   const [priority, setPriority] = useState('Medium') // How urgent is this issue
+  
+  // Inline message state for form validation feedback
+  const [message, setMessage] = useState(null)   // { type: 'error'|'success', text: string }
 
   // Handle form submission when tenant submits a maintenance request
   const handleSubmit = (e) => {
@@ -67,7 +70,7 @@ function TenantDashboard() {
 
     // Validate that all required fields are filled
     if (!unit.trim() || !description.trim()) {
-      alert('Please fill out all required fields')
+      setMessage({ type: 'error', text: 'Please fill out all required fields' })
       return
     }
 
@@ -87,10 +90,24 @@ function TenantDashboard() {
     setUnit('')
     setDescription('')
     setPriority('Medium')
+    // Show success message and auto-clear after 3 seconds
+    setMessage({ type: 'success', text: 'Maintenance request submitted successfully!' })
+    setTimeout(() => setMessage(null), 3000)
   }
 
   return (
     <>
+      {/* Inline message display for form feedback */}
+      {message && (
+        <div className={`mb-6 p-4 rounded-lg border ${
+          message.type === 'error' 
+            ? 'bg-red-50 border-red-200 text-red-800' 
+            : 'bg-green-50 border-green-200 text-green-800'
+        }`}>
+          {message.type === 'error' ? '❌' : '✅'} {message.text}
+        </div>
+      )}
+
       {/* Page header section */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">KejaLink Tenant Portal</h1>

@@ -7,12 +7,15 @@ import { signInWithGoogle } from '../Utils/googleSignIn'
 function LandingPage() {
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(false)
+  // Inline message state for Google login errors
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const navigate = useNavigate()
 
   const handleGoogleLogin = async () => {
     try {
       setLoading(true)
+      setErrorMessage(null)
       const profile = await signInWithGoogle()
       dispatch(loginSuccess(profile))
 
@@ -21,7 +24,7 @@ function LandingPage() {
       else if (role === 'landlord') navigate('/landlord-dashboard', { replace: true })
       else navigate('/', { replace: true })
     } catch (e) {
-      alert(e?.message || 'Google login failed')
+      setErrorMessage(e?.message || 'Google login failed')
     } finally {
       setLoading(false)
     }
@@ -49,6 +52,14 @@ function LandingPage() {
               KejaLink helps tenants and property owners stay on the same page—broadcast community notices,
               track maintenance requests, and keep payments organized.
             </p>
+
+            {/* Inline error message for Google login */}
+            {errorMessage && (
+              <div className="mt-4 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800">
+                <div className="text-sm font-semibold">❌ Login Error</div>
+                <div className="text-sm">{errorMessage}</div>
+              </div>
+            )}
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
               <button
