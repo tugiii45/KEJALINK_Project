@@ -1,23 +1,29 @@
 @import "tailwindcss";
 
-/* Theme system (light/dark) for protected app layout */
+/* ======================== */
+/* Theme System (Light/Dark) */
+/* ======================== */
+/* CSS custom properties for consistent theming across the app */
+/* Light mode defaults */
 :root {
-  --bg: #ffffff;
-  --panel: #ffffff;
-  --text: #0f172a;
-  --muted: #475569;
-  --border: #e2e8f0;
+  --bg: #ffffff;        /* Main background color */
+  --panel: #ffffff;     /* Card/panel background */
+  --text: #0f172a;      /* Primary text color */
+  --muted: #475569;     /* Secondary/dimmed text */
+  --border: #e2e8f0;    /* Border and divider color */
 }
 
+/* Dark mode overrides - applied when data-theme="dark" */
 html[data-theme='dark'] {
-  --bg: #0b1220;
-  --panel: #0f172a;
-  --text: #e5e7eb;
-  --muted: #94a3b8;
-  --border: #243244;
+  --bg: #0b1220;        /* Dark background */
+  --panel: #0f172a;     /* Dark panel/card background */
+  --text: #e5e7eb;      /* Light text for contrast */
+  --muted: #94a3b8;     /* Dimmed text in dark mode */
+  --border: #243244;    /* Dark border color */
 }
 
 /* Apply theme colors for app shells that opt-in */
+/* Components use these classes to automatically support light/dark modes */
 .theme-bg {
   background-color: var(--bg);
 }
@@ -34,7 +40,12 @@ html[data-theme='dark'] {
   border-color: var(--border);
 }
 
-/* Dark mode overrides for light-mode hardcoded classes */
+/* ====================================================== */
+/* Dark Mode Overrides                                    */
+/* ====================================================== */
+/* Tailwind classes are hardcoded for light mode,         */
+/* so we need to override them when data-theme="dark"     */
+/* This ensures consistent dark mode appearance everywhere */
 html[data-theme='dark'] {
   /* Sidebar and navigation */
   aside {
@@ -42,7 +53,10 @@ html[data-theme='dark'] {
     border-color: var(--border);
   }
 
-  /* Text colors - override light mode defaults */
+  /* ============ */
+  /* Text Colors  */
+  /* ============ */
+  /* Override slate text colors with dark-appropriate alternatives */
   .text-slate-900 {
     color: var(--text);
   }
@@ -67,11 +81,15 @@ html[data-theme='dark'] {
     color: var(--muted);
   }
 
-  /* Background colors - override light mode defaults */
+  /* ================== */
+  /* Background Colors  */
+  /* ================== */
+  /* Override white backgrounds with dark panel color */
   .bg-white {
     background-color: var(--panel);
   }
 
+  /* Override slate backgrounds with dark alternatives */
   .bg-slate-50 {
     background-color: #1a2332;
   }
@@ -84,7 +102,10 @@ html[data-theme='dark'] {
     background-color: #2f3f52;
   }
 
-  /* Border colors */
+  /* ============== */
+  /* Border Colors  */
+  /* ============== */
+  /* Use dark border color for all border classes */
   .border-slate-200 {
     border-color: var(--border);
   }
@@ -93,7 +114,10 @@ html[data-theme='dark'] {
     border-color: var(--border);
   }
 
-  /* Card backgrounds */
+  /* =============== */
+  /* Card Styles     */
+  /* =============== */
+  /* Keep red/green/blue tints visible in dark mode */
   .bg-red-50 {
     background-color: rgba(220, 38, 38, 0.1);
   }
@@ -154,6 +178,7 @@ html[data-theme='dark'] {
   }
 
   /* Form inputs and textareas */
+  /* Set dark mode colors for all form elements */
   input[type='text'],
   input[type='email'],
   input[type='password'],
@@ -165,6 +190,7 @@ html[data-theme='dark'] {
     border-color: var(--border);
   }
 
+  /* Placeholder text should be muted in dark mode */
   input[type='text']::placeholder,
   input[type='email']::placeholder,
   input[type='password']::placeholder,
@@ -172,6 +198,7 @@ html[data-theme='dark'] {
     color: var(--muted);
   }
 
+  /* Focus states - highlight with blue border */
   input[type='text']:focus,
   input[type='email']:focus,
   input[type='password']:focus,
@@ -184,7 +211,10 @@ html[data-theme='dark'] {
     outline: none;
   }
 
-  /* Table styling */
+  /* ================ */
+  /* Table Styling    */
+  /* ================ */
+  /* Make tables readable in dark mode */
   table {
     color: var(--text);
     border-color: var(--border);
@@ -208,7 +238,9 @@ html[data-theme='dark'] {
     color: var(--text);
   }
 
-  /* Button styling */
+  /* =============== */
+  /* Button Styling  */
+  /* =============== */
   button {
     transition: all 0.2s;
   }
@@ -221,7 +253,10 @@ html[data-theme='dark'] {
     background-color: #15803d;
   }
 
-  /* Gray color overrides for Login and other pages */
+  /* ============================================ */
+  /* Gray Color Overrides (Login/Auth Pages)     */
+  /* ============================================ */
+  /* Login page uses gray classes, so override them */
   .bg-gray-50 {
     background-color: var(--bg);
   }

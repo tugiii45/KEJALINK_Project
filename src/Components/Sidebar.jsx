@@ -36,7 +36,9 @@ function Sidebar() {
   const role = user?.role || 'tenant'
 
   const handleLogout = () => {
+    // Dispatch logout action to clear auth state from Redux
     dispatch(logout())
+    // Redirect user to home page
     navigate('/', { replace: true })
   }
 
@@ -65,8 +67,11 @@ function Sidebar() {
             <button
               type="button"
               onClick={() => {
+                // Get current theme from DOM attribute
                 const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+                // Apply theme to document element
                 document.documentElement.setAttribute('data-theme', next)
+                // Persist theme preference to localStorage for next session
                 try {
                   localStorage.setItem('theme', next)
                 } catch {}
@@ -88,7 +93,8 @@ function Sidebar() {
       <nav className="flex flex-col gap-2">
         {role === 'tenant' ? (
           <>
-            <NavLink>
+            {/* Tenant Dashboard - Home overview */}
+            <NavLink
               to="/tenant-dashboard"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
@@ -97,10 +103,11 @@ function Sidebar() {
                     : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
                 }`
               }
-            
+            >
               Dashboard
             </NavLink>
 
+            {/* Payment Dashboard - Pay rent and view payment history */}
             <NavLink
               to="/payment-dashboard"
               className={({ isActive }) =>
@@ -114,6 +121,7 @@ function Sidebar() {
               Payments
             </NavLink>
 
+            {/* Report Issue - Submit new maintenance requests */}
             <NavLink
               to="/report-issue"
               className={({ isActive }) =>
@@ -129,6 +137,7 @@ function Sidebar() {
           </>
         ) : (
           <>
+            {/* Landlord Dashboard - Overview and management hub */}
             <NavLink
               to="/landlord-dashboard"
               className={({ isActive }) =>
@@ -141,6 +150,7 @@ function Sidebar() {
             >
               Overview
             </NavLink>
+            {/* Ticket Queue - View all tenant maintenance requests */}
             <NavLink
               to="/ticket-queue"
               className={({ isActive }) =>
@@ -154,6 +164,7 @@ function Sidebar() {
               Ticket Queue
             </NavLink>
 
+            {/* Payment Dashboard - Verify tenant payments and ledger */}
             <NavLink
               to="/payment-dashboard"
               className={({ isActive }) =>

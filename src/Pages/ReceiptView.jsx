@@ -18,15 +18,18 @@
 import React from 'react';
 
 function ReceiptView({ receipt }) {
+  // Don't render anything if no receipt data provided
   if (!receipt) return null;
 
+  // Determine receipt status for styling and conditional display
   const isVerified = receipt.status === 'Verified';
   const isDeclined = receipt.status === 'Declined';
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 relative overflow-hidden w-full max-w-md mx-auto">
       
-      {/* Dynamic Visual Watermark Badge depending on ledger state */}
+      {/* Diagonal watermark badge showing transaction status */}
+      {/* Green for Verified, Red for Declined, Amber for Pending */}
       <div className={`absolute top-6 right-[-35px] text-white font-black text-xs py-1.5 px-10 rotate-45 tracking-widest shadow-sm uppercase select-none ${
         isVerified ? 'bg-emerald-500 shadow-emerald-100' :
         isDeclined ? 'bg-red-500 shadow-red-100' : 'bg-amber-500 shadow-amber-100'
@@ -65,7 +68,8 @@ function ReceiptView({ receipt }) {
         </div>
       </div>
 
-      {/* Dynamic Amount Background Box */}
+      {/* Amount box with status-based color scheme */}
+      {/* Green if Verified, Red if Declined, Amber if Pending */}
       <div className={`rounded-xl p-4 border flex justify-between items-center mb-6 ${
         isVerified ? 'bg-emerald-50 border-emerald-100 text-emerald-900' :
         isDeclined ? 'bg-red-50 border-red-100 text-red-900' : 'bg-amber-50 border-amber-100 text-amber-900'
@@ -74,9 +78,10 @@ function ReceiptView({ receipt }) {
         <span className="text-2xl font-black">KES {receipt.amount.toLocaleString()}</span>
       </div>
 
-      {/* Action Footer Conditional Block */}
+      {/* Action footer - Print button for verified receipts, status message for others */}
       <div>
         {isVerified ? (
+          // Only verified payments can be printed as official receipts
           <button
             onClick={() => window.print()}
             className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-950 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors"
@@ -84,6 +89,7 @@ function ReceiptView({ receipt }) {
             Print Clean Receipt Document
           </button>
         ) : (
+          // Show status message for pending or declined receipts
           <div className={`p-2.5 rounded-lg text-center text-xs font-medium ${
             isDeclined ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
           }`}>

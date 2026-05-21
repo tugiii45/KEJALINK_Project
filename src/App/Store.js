@@ -23,12 +23,16 @@ import paymentLedgerReducer from '../Features/PaymentLedgerSlice'
 // Configure and export the Redux store with all reducers
 export const store = configureStore({
   reducer: {
+    // User authentication state (login status, user profile, role)
     auth: authReducer,
+    // Maintenance tickets submitted by tenants
     maintenance: maintenanceReducer,
+    // Community notices/announcements posted by landlords
     notices: noticesReducer,
+    // Local payment UI state during form submission
     payments: paymentsReducer,
+    // Firestore-synced payment history (source of truth for ledger)
     paymentLedger: paymentLedgerReducer,
-
   },
 });
 

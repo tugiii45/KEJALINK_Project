@@ -38,19 +38,24 @@ import Sidebar from '../Components/Sidebar'
 
 // Role-based route protection component
 function RoleProtectedRoute({ requiredRole, children }) {
+  // Get user object from Redux auth state
   const { user } = useSelector((state) => state.auth)
+  // Convert user role to lowercase for case-insensitive comparison
   const userRole = user?.role?.toLowerCase()
   const requiredRoleLower = requiredRole.toLowerCase()
 
+  // If user's role doesn't match the required role, redirect to tenant dashboard
   if (userRole !== requiredRoleLower) {
     return <Navigate to="/tenant-dashboard" replace />
   }
 
+  // User has the correct role, render the protected content
   return children
 }
 
 // 1) Shared Auth layout
 function AppLayout() {
+  // Check if user is authenticated from Redux store
   const { isAuthenticated } = useSelector((state) => state.auth)
 
   // Allow the public landing page at '/' even when not authenticated.
@@ -58,7 +63,7 @@ function AppLayout() {
     return <Outlet />
   }
 
-
+  // Authenticated users get the full layout with Sidebar + main content
   return (
     <div style={{ display: 'flex' }}>
       {/* Sidebar is fixed; keep main offset so content doesn't go under it */}
@@ -73,6 +78,7 @@ function AppLayout() {
           overflowY: 'auto',
         }}
       >
+        {/* Child routes render here (e.g., tenant-dashboard, landlord-dashboard) */}
         <Outlet />
       </main>
     </div>

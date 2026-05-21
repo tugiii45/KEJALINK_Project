@@ -1,14 +1,18 @@
 /**
- * Payments Redux Slice (Local State)
- * 
- * Handles UI state for payment form submission and receipts.
- * NOT used for syncing from Firestore - that's handled by PaymentLedgerSlice.
- * This slice is for managing the current receipt preview and loading states.
- * 
- * Use this for: form submission feedback, receipt display, error handling
+ * Payments Redux Slice (Local/UI State)
+ *
+ * This slice manages *client-side* UI state for payments (e.g. showing a
+ * generated receipt preview, and loading/error flags during a simulated
+ * “processing” flow).
+ *
+ * IMPORTANT:
+ * - This slice is NOT responsible for Firestore syncing.
+ * - Firestore-synced payment history/ledger is handled by:
+ *   - `PaymentLedgerSlice`.
  */
 
 import { createSlice } from '@reduxjs/toolkit'
+
 
 const initialState = {
   loading: false,
@@ -48,37 +52,44 @@ const paymentSlice = createSlice({
   name: 'payments',
   initialState,
   reducers: {
+    // Add new payment to the top of the payments list for display
     addPayment(state, action) {
-      // Add newest payment to the top of the ledger
+      // Insert at beginning so newest payment appears first
       state.payments.unshift(action.payload)
     },
 
+    // Update a payment's verification status (Pending → Verified or Declined)
     updatePaymentStatus(state, action) {
       const { id, status } = action.payload ?? {}
+      // Find payment by ID and update its status
       const payment = state.payments.find((p) => p.id === id)
       if (payment) {
         payment.status = status
       }
     },
 
+    // Clear the current receipt from state after user closes receipt modal
     clearCurrentReceipt(state) {
       state.currentReceipt = null
       state.loading = false
       state.error = null
     },
 
-
+    // Called when payment processing starts - show loading spinner
     processPaymentStart(state) {
       state.loading = true
       state.error = null
     },
 
+    // Called when payment is successfully processed - store receipt for display
     processPaymentSuccess(state, action) {
       state.loading = false
       state.error = null
+      // action.payload contains the generated receipt object
       state.currentReceipt = action.payload
     },
 
+    // Called when payment processing fails - store error for display to user
     processPaymentFailure(state, action) {
       state.loading = false
       state.error = action.payload ?? 'Payment failed'
@@ -96,19 +107,20 @@ export const {
 } = paymentSlice.actions
 
 
-// Lightweight action creator (no async middleware needed)
+// Action creator for processing payments (generates receipt on client-side)
 export const processPayment = (payload) => (dispatch) => {
   dispatch(processPaymentStart())
 
-  // Simple receipt generation (client-side)
+  // Extract payment details from payload
   const { tenantName, houseNumber, amount, type, month, referenceCode } = payload ?? {}
 
-  // Minimal validation
+  // Validate that all required fields are present before generating receipt
   if (!tenantName || !houseNumber || !amount || !type || !month || !referenceCode) {
     dispatch(processPaymentFailure('Missing required payment details'))
     return
   }
 
+  // Create receipt object with payment information and timestamp
   const receipt = {
     id: Date.now(),
     tenantName,
@@ -117,6 +129,7 @@ export const processPayment = (payload) => (dispatch) => {
     type,
     month,
     referenceCode,
+    // Format current date/time for display on receipt
     createdAt: new Date().toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -124,10 +137,10 @@ export const processPayment = (payload) => (dispatch) => {
       hour: '2-digit',
       minute: '2-digit',
     }),
-    // you can extend this later with transaction status
     status: 'Successful',
   }
 
+  // Update state with generated receipt for display to user
   dispatch(processPaymentSuccess(receipt))
 }
 

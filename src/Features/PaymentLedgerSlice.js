@@ -21,25 +21,36 @@ const paymentLedgerSlice = createSlice({
   name: 'paymentLedger',
   initialState,
   reducers: {
+    // Called when Firestore payment data is being fetched
     paymentLedgerLoading(state) {
       state.loading = true
       state.error = null
     },
+    // Called when Firestore payment data successfully loaded
     paymentLedgerLoaded(state, action) {
       state.loading = false
       state.error = null
+      // action.payload is the array of payment records from Firestore
       state.payments = action.payload ?? []
     },
+    // Called when payment data fetch fails
     paymentLedgerError(state, action) {
       state.loading = false
       state.error = action.payload ?? 'Failed to load payments'
     },
+    // Insert or update a single payment from real-time Firestore listener
     upsertPaymentFromServer(state, action) {
       const payment = action.payload
       if (!payment?.id) return
+      // Check if this payment already exists in state
       const idx = state.payments.findIndex((p) => p.id === payment.id)
-      if (idx >= 0) state.payments[idx] = payment
-      else state.payments.unshift(payment)
+      if (idx >= 0) {
+        // Update existing payment
+        state.payments[idx] = payment
+      } else {
+        // Add new payment to beginning of list
+        state.payments.unshift(payment)
+      }
     },
   },
 })

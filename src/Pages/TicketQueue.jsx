@@ -21,19 +21,27 @@ import React, { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 function TicketQueue() {
+  // Get all maintenance tickets from Redux store
   const { tickets } = useSelector((state) => state.maintenance)
 
+  // Filter state for status selection (All, Pending, In Progress, Resolved)
   const [statusFilter, setStatusFilter] = useState('All')
+  // Filter state for priority selection (All, High, Medium, Low)
   const [priorityFilter, setPriorityFilter] = useState('All')
 
+  // Memoized filtered list - only recalculates when tickets or filters change
+  // This prevents unnecessary re-renders of the table
   const filteredTickets = useMemo(() => {
     return tickets.filter((ticket) => {
+      // Check if ticket status matches the selected filter (or if filter is 'All')
       const matchesStatus =
         statusFilter === 'All' || ticket.status === statusFilter
 
+      // Check if ticket priority matches the selected filter (or if filter is 'All')
       const matchesPriority =
         priorityFilter === 'All' || ticket.priority === priorityFilter
 
+      // Include ticket only if it matches both filters
       return matchesStatus && matchesPriority
     })
   }, [tickets, statusFilter, priorityFilter])

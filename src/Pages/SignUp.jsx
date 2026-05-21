@@ -26,42 +26,52 @@ function SignUp({ onSignUpSuccess, onToggleToLogin }) {
     if (typeof onToggleToLogin === 'function') return onToggleToLogin()
     navigate('/login')
   }
+  
+  // Form field state for sign up
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('Tenant');
-  const [houseNumber, setHouseNumber] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState('Tenant');              // User type: Tenant or Landlord
+  const [houseNumber, setHouseNumber] = useState('');      // Only required for Tenants
+  const [error, setError] = useState('');                  // Error message from Firebase
+  const [loading, setLoading] = useState(false);           // Show loading spinner during signup
 
+  // Handle form submission - create Firebase account and save profile
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
+      // Step 1: Create Firebase Auth account with email/password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
+      // Step 2: Create user profile in Firestore with metadata
       const profileData = {
         uid: user.uid,
         fullName,
         email,
         role,
+        // Store house number for Tenants, 'N/A' for Landlords
         houseNumber: role === 'Tenant' ? houseNumber.toUpperCase() : 'N/A',
         createdAt: new Date().toISOString()
       };
 
+      // Save profile document to Firestore
       await setDoc(doc(db, 'users', user.uid), profileData);
+      // Call success callback to redirect to dashboard
       onSignUpSuccess(profileData);
     } catch (err) {
       console.error(err);
+      // Handle specific Firebase errors
       if (err.code === 'auth/email-already-in-use') {
         setError('This email address is already registered.');
       } else {
         setError(err.message.replace('Firebase: ', ''));
       }
     } finally {
+      // Re-enable submit button whether signup succeeded or failed
       setLoading(false);
     }
   };
@@ -100,6 +110,7 @@ function SignUp({ onSignUpSuccess, onToggleToLogin }) {
             </select>
           </div>
 
+          {/* Only show house number field for Tenants (not Landlords) */}
           {role === 'Tenant' && (
             <div>
               <label className="block text-xs font-semibold text-gray-500 mb-1">House / Unit Number</label>

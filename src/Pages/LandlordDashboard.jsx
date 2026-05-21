@@ -82,11 +82,13 @@ function LandlordDashboard() {
   }
 
   const handleStatusTransition = (ticketId, currentStatus) => {
+    // Implement one-way status flow: Pending → In Progress → Resolved
     let nextStatus = 'Pending'
-    if (currentStatus === 'Pending') nextStatus = 'In Progress'
-    else if (currentStatus === 'In Progress') nextStatus = 'Resolved'
-    else return
+    if (currentStatus === 'Pending') nextStatus = 'In Progress' // Accept the request
+    else if (currentStatus === 'In Progress') nextStatus = 'Resolved' // Mark as fixed/complete
+    else return // Resolved tickets cannot be transitioned further
 
+    // Update ticket status in Redux store
     dispatch(updateTicketStatus({ id: ticketId, status: nextStatus }))
   }
 

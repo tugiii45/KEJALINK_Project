@@ -22,34 +22,43 @@
 import React, { useState } from 'react'
 
 function ReportIssue() {
+  // Form state object - stores all issue details entered by tenant
   const [formData, setFormData] = useState({
-    title: '',
-    category: 'maintenance',
-    description: '',
-    urgency: 'medium',
-    unitNumber: '',
+    title: '',              // Issue headline (e.g., "Leaking sink")
+    category: 'maintenance', // Type of issue (Plumbing, Security, etc)
+    description: '',        // Detailed problem description
+    urgency: 'medium',      // Priority level: low, medium, high, emergency
+    unitNumber: '',         // Which apartment/unit has the problem
   })
 
+  // Loading state while form is being submitted
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // Status message: null, 'success', or 'error' for user feedback
   const [submitStatus, setSubmitStatus] = useState(null)
 
+  // Update form state when user types in any field
   const handleChange = (e) => {
     const { name, value } = e.target
+    // Update specific field in formData while keeping other fields unchanged
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }))
   }
 
+  // Handle form submission - validate and process issue report
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
     setSubmitStatus(null)
 
     try {
+      // Simulate API call delay (in real app, this would send to Firebase/backend)
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
+      // Show success message to user
       setSubmitStatus('success')
+      // Clear form fields after successful submission
       setFormData({
         title: '',
         category: 'maintenance',
@@ -58,9 +67,11 @@ function ReportIssue() {
         unitNumber: '',
       })
     } catch (error) {
+      // Handle submission errors
       console.error(error)
       setSubmitStatus('error')
     } finally {
+      // Re-enable submit button whether submission succeeded or failed
       setIsSubmitting(false)
     }
   }

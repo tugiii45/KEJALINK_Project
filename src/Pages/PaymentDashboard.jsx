@@ -73,15 +73,18 @@ function PaymentDashboard() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    // Update specific form field while keeping other fields unchanged
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Tenant submits a payment into the Redux ledger
+  // Tenant submits a payment for landlord verification
   // Accept activeUser prop object containing the authenticated session profile
   const handleTenantSubmit = async (e, activeUser) => {
     e.preventDefault()
+    // Validate required fields before proceeding
     if (!formData.amount || !formData.referenceCode) return
 
+    // Verify user profile has all required information
     if (!activeUser?.fullName || !activeUser?.houseNumber || !activeUser?.uid) {
       alert('Missing tenant profile details. Please log in again.')
       return
@@ -89,33 +92,36 @@ function PaymentDashboard() {
 
     setLoading(true)
 
+    // Generate unique payment ID in format "KL-XXXXXX"
     const generatedId = `KL-${Math.floor(100000 + Math.random() * 900000)}`
 
+    // Create payment record with all transaction details
     const newPayment = {
       id: generatedId,
       tenantName: activeUser.fullName,
       houseNumber: activeUser.houseNumber,
-      tenantUid: activeUser.uid,
+      tenantUid: activeUser.uid,  // Link payment to tenant account
       amount: parseFloat(formData.amount),
       type: formData.type,
       month: formData.month,
       referenceCode: formData.referenceCode.toUpperCase(),
       date: new Date().toLocaleDateString(),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: 'Pending Verification',
+      status: 'Pending Verification',  // Landlord will change to 'Verified' or 'Declined'
       createdAt: serverTimestamp(),
     }
 
-    // Keep local UI responsive
+    // Keep local UI responsive by updating Redux immediately
     dispatch(addPayment(newPayment))
 
-    // Persist to Firestore so landlord sees it
+    // Persist to Firestore so landlord sees it in real-time
     try {
       await addDoc(collection(db, 'payments'), newPayment)
     } catch (err) {
       console.error(err)
       alert('Failed to submit payment. Please try again.')
     } finally {
+      // Clear form fields after submission
       setFormData((prev) => ({ ...prev, amount: '', referenceCode: '' }))
       setLoading(false)
     }
@@ -123,21 +129,23 @@ function PaymentDashboard() {
 
 
 
-  // Landlord verifies/declines a payment (update Firestore + keep Redux in sync)
+  // Landlord verifies or declines a payment (update Firestore + sync Redux)
   const handleVerifyStatus = async (id, newStatus) => {
-    // Optimistic UI
+    // Optimistic UI: Update Redux state immediately for responsive UI
     dispatch(updatePaymentStatus({ id, status: newStatus }))
 
     try {
-      // Find the Firestore doc that has this explicit `id` field.
+      // Find the Firestore document that matches this payment ID
       const q = query(collection(db, 'payments'))
       const snap = await getDocs(q)
+      // Search for document where the 'id' field matches our payment ID
       const match = snap.docs.find((d) => d.data()?.id === id)
       if (!match) {
         console.warn('[PaymentDashboard] Could not find payment doc for id:', id)
         return
       }
 
+      // Update the payment status in Firestore
       await updateDoc(doc(db, 'payments', match.id), { status: newStatus })
     } catch (err) {
       console.error(err)
@@ -146,30 +154,36 @@ function PaymentDashboard() {
   }
 
 
-  // Sync Firestore payments into Redux ledger
+  // Sync all payments from Firestore into Redux state in real-time
   useEffect(() => {
+    // Query all payments from Firestore collection
     const q = query(collection(db, 'payments'))
 
+    // Set up real-time listener that fires whenever payments change
     const unsub = onSnapshot(q, (snap) => {
       console.log('[PaymentDashboard] payments snapshot size:', snap.size)
+      // Process each payment document
       snap.forEach((d) => {
         const data = d.data()
+        // Upsert (insert or update) payment into Redux ledger
         dispatch(upsertPaymentFromServer({
-          id: data.id ?? d.id,
+          id: data.id ?? d.id,  // Use custom id field or Firestore doc ID
           ...data,
         }))
       })
     })
 
+    // Cleanup: unsubscribe from listener when component unmounts
     return () => unsub()
   }, [dispatch])
 
-
-  // Keep the selected receipt preview synced with the latest ledger row
+  // Keep receipt preview in sync with latest payment data from ledger
   useEffect(() => {
     if (!currentReceipt) return
+    // Find updated payment data in ledger
     const updated = paymentHistory.find((p) => p.id === currentReceipt.id)
     if (!updated) return
+    // Update receipt view with latest data (especially status changes)
     setCurrentReceipt(updated)
   }, [paymentHistory, currentReceipt])
 
