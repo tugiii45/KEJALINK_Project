@@ -1,8 +1,32 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { loginSuccess } from '../Features/AuthSlice'
+import { signInWithGoogle } from '../Utils/googleSignIn'
 
 function LandingPage() {
+  const dispatch = useDispatch()
+  const [loading, setLoading] = useState(false)
+
   const navigate = useNavigate()
+
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true)
+      const profile = await signInWithGoogle()
+      dispatch(loginSuccess(profile))
+
+      const role = (profile?.role || '').toLowerCase()
+      if (role === 'tenant') navigate('/tenant-dashboard', { replace: true })
+      else if (role === 'landlord') navigate('/landlord-dashboard', { replace: true })
+      else navigate('/', { replace: true })
+    } catch (e) {
+      alert(e?.message || 'Google login failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   return (
     <div
@@ -82,7 +106,17 @@ function LandingPage() {
                 </div>
               </div>
 
-              <div className="mt-6">
+              <div className="mt-6 space-y-3">
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
+                  className="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  <span aria-hidden="true">G</span>
+                  {loading ? 'Signing in...' : 'Continue with Google'}
+                </button>
+
                 <button
                   type="button"
                   onClick={() => navigate('/login')}
@@ -90,7 +124,8 @@ function LandingPage() {
                 >
                   Continue to login
                 </button>
-                <p className="text-xs text-slate-500 mt-3">
+
+                <p className="text-xs text-slate-500 mt-1">
                   No account yet?{' '}
                   <button
                     type="button"
@@ -101,6 +136,7 @@ function LandingPage() {
                   </button>
                 </p>
               </div>
+
             </div>
           </div>
         </div>
