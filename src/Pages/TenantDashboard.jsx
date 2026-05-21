@@ -138,92 +138,17 @@ function TenantDashboard() {
         )}
       </div>
 
-      <h2 className="text-xl font-bold text-slate-800 mb-4">Submit a Maintenance request</h2>
+      <h2 className="text-xl font-bold text-slate-800 mb-4">Maintenance</h2>
       <div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="unitInput" className="block text-sm font-medium text-slate-700">
-              Unit / Apartment Number:
-            </label>
-            <input
-              id="unitInput"
-              type="text"
-              placeholder="e.g Hse 4B, 2G 4D - Seer Green Milimani"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              className="mt-1 block w-full rounded border border-slate-300 p-2"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="descInput" className="block text-sm font-medium text-slate-700">
-              Issue Description
-            </label>
-            <textarea
-              id="descInput"
-              placeholder="Describe the issue in detail..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 block w-full rounded border border-slate-300 p-2"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="prioritySelect" className="block text-sm font-medium text-slate-700">
-              Priority Level:
-            </label>
-            <select
-              id="prioritySelect"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              className="mt-1 block w-full rounded border border-slate-300 p-2"
-            >
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-
-          <button type="submit" className="rounded bg-green-600 px-4 py-2 text-white">
-            Submit Request
-          </button>
-        </form>
+        <p className="text-slate-600 mb-4">Submit new requests and view your ticket history in the dedicated page.</p>
+        <button
+          onClick={() => navigate('/maintenance')}
+          className="rounded bg-green-600 px-4 py-2 text-white"
+        >
+          Go to Maintenance
+        </button>
       </div>
 
-      <h2 className="text-xl font-bold text-slate-800 mb-4 mt-10">Your Maintenance History</h2>
-      <div>
-        <table className="w-full border-collapse border border-slate-200">
-          <thead>
-            <tr className="bg-slate-50">
-              <th className="border border-slate-200 p-2 text-left">Unit</th>
-              <th className="border border-slate-200 p-2 text-left">Description</th>
-              <th className="border border-slate-200 p-2 text-left">Priority</th>
-              <th className="border border-slate-200 p-2 text-left">Current Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {tickets.length === 0 ? (
-              <tr>
-                <td className="border border-slate-200 p-2" colSpan={4}>
-                  You haven't submitted any requests yet
-                </td>
-              </tr>
-            ) : (
-              tickets.map((ticket) => (
-                <tr key={ticket.id}>
-                  <td className="border border-slate-200 p-2">{ticket.unit}</td>
-                  <td className="border border-slate-200 p-2">{ticket.description}</td>
-                  <td className="border border-slate-200 p-2">{ticket.priority}</td>
-                  <td className="border border-slate-200 p-2">
-                    <strong>{ticket.status}</strong>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
     </>
   )
 }

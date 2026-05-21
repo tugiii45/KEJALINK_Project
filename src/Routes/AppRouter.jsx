@@ -27,6 +27,8 @@ import LandlordDashboard from '../Pages/LandlordDashboard'
 import ReportIssue from '../Pages/ReportIssue'
 import TicketQueue from '../Pages/TicketQueue'
 import PaymentDashboard from '../Pages/PaymentDashboard'
+import TenantMaintenance from '../Pages/TenantMaintenance'
+
 
 
 // Import Layout Components
@@ -95,6 +97,11 @@ const router = createBrowserRouter([
         path: 'tenant-dashboard',
         element: <TenantDashboard />,
       },
+      {
+        path: 'maintenance',
+        element: <TenantMaintenance />,
+      },
+
       {
         path: 'payment-dashboard',
         element: <PaymentDashboard />,

@@ -80,7 +80,7 @@ function Sidebar() {
       <nav className="flex flex-col gap-2">
         {role === 'tenant' ? (
           <>
-            <NavLink
+            <NavLink>
               to="/tenant-dashboard"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
@@ -89,7 +89,7 @@ function Sidebar() {
                     : 'bg-white border-transparent text-slate-700 hover:bg-slate-50 hover:border-slate-200'
                 }`
               }
-            >
+            
               Dashboard
             </NavLink>
 
