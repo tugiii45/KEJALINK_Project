@@ -22,12 +22,14 @@ import { useSelector } from 'react-redux'
 // Import Pages
 import Login from '../Pages/Login'
 import SignUpShim from './SignUpShim'
+import LandingPage from '../Pages/LandingPage'
 import TenantDashboard from '../Pages/TenantDashboard'
 import LandlordDashboard from '../Pages/LandlordDashboard'
 import ReportIssue from '../Pages/ReportIssue'
 import TicketQueue from '../Pages/TicketQueue'
 import PaymentDashboard from '../Pages/PaymentDashboard'
 import TenantMaintenance from '../Pages/TenantMaintenance'
+
 
 
 
@@ -51,9 +53,11 @@ function RoleProtectedRoute({ requiredRole, children }) {
 function AppLayout() {
   const { isAuthenticated } = useSelector((state) => state.auth)
 
+  // Allow the public landing page at '/' even when not authenticated.
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Outlet />
   }
+
 
   return (
     <div style={{ display: 'flex' }}>
@@ -91,7 +95,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/login" replace />,
+        element: <LandingPage />,
       },
       {
         path: 'tenant-dashboard',
