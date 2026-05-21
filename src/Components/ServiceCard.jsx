@@ -5,7 +5,7 @@
  * Used on TenantDashboard to show quick action cards.
  * 
  * Props:
- * - icon: Emoji or icon to display
+ 
  * - title: Feature name (e.g., "Pay Rent")
  * - description: Brief explanation of what this does
  * - badgeText: Small label (e.g., "Payments")

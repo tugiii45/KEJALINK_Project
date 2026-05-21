@@ -96,7 +96,7 @@ function LandlordDashboard() {
         {/* Quick navigation for landlord to verify payments */}
         <div className="mb-4">
           <a
-            href="/payment-dashboard"
+            href="/PaymentDashboard"
             className="inline-flex items-center rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100"
           >
             Verify Payments

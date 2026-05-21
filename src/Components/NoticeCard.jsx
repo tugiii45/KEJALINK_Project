@@ -11,10 +11,7 @@
  * - category: Type of notice (Utility, Maintenance, Policy, etc.)
  * - importance: 'high' or other (determines color scheme)
  * 
- * Styling:
- * - High importance notices: Red border/background (urgent)
- * - Normal notices: Blue border/background
- * - Shows category badge and date
+ 
  */
 
 import React from 'react'
