@@ -91,7 +91,7 @@ function LandlordDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
+    <div className="min-h-screen bg-slate-50 px-4 py-8" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
       <div className="max-w-6xl mx-auto">
         {/* Quick navigation for landlord to verify payments */}
         <div className="mb-4">

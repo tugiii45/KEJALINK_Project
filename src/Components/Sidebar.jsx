@@ -39,11 +39,42 @@ function Sidebar() {
   return (
     <aside
       className="fixed top-0 bottom-0 left-0 w-64 bg-white border-r border-slate-200 px-4 py-6 flex flex-col"
-      style={{ boxShadow: '0 1px 2px rgba(15, 23, 42, 0.06)' }}
+      style={{ 
+        boxShadow: '0 1px 2px rgba(15, 23, 42, 0.06)',
+        backgroundColor: 'var(--panel)',
+        borderColor: 'var(--border)',
+        color: 'var(--text)'
+      }}
     >
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-900">KejaLink</h2>
-        <p className="text-sm text-slate-600 mt-1">Role: {role}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900" style={{ color: 'var(--text)' }}>KejaLink</h2>
+            <p className="text-sm text-slate-600 mt-1" style={{ color: 'var(--muted)' }}>Role: {role}</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+                document.documentElement.setAttribute('data-theme', next)
+                try {
+                  localStorage.setItem('theme', next)
+                } catch {}
+              }}
+              className="px-2.5 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
+              style={{ 
+                backgroundColor: 'var(--bg)',
+                borderColor: 'var(--border)',
+                color: 'var(--text)'
+              }}
+              aria-label="Toggle dark/light theme"
+            >
+              {typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark' ? '🌙 Dark' : '☀️ Light'}
+            </button>
+          </div>
+        </div>
       </div>
 
       <nav className="flex flex-col gap-2">

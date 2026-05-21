@@ -67,8 +67,8 @@ function SignUp({ onSignUpSuccess, onToggleToLogin }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
+      <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6" style={{ backgroundColor: 'var(--panel)', borderColor: 'var(--border)' }}>
         
         <div className="text-center">
           <h2 className="text-3xl font-black tracking-tight text-blue-600">KEJALINK</h2>

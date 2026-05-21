@@ -111,9 +111,9 @@ function Login({ onLoginSuccess, onToggleToSignUp }) {
 
   // Render login form UI
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
       {/* Login card container */}
-      <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+      <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6" style={{ backgroundColor: 'var(--panel)', borderColor: 'var(--border)' }}>
         
         {/* Header with app logo */}
         <div className="text-center">

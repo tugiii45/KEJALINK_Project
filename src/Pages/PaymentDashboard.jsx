@@ -175,8 +175,8 @@ function PaymentDashboard() {
 
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
-      <div className="bg-gray-900 text-white p-4 rounded-xl flex justify-between items-center shadow-lg">
+    <div className="p-6 max-w-6xl mx-auto space-y-8" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
+      <div className="bg-gray-900 text-white p-4 rounded-xl flex justify-between items-center shadow-lg" style={{ backgroundColor: 'var(--panel)', color: 'var(--text)' }}>
         <div>
           <h2 className="text-xl font-bold tracking-tight">KejaLink Payments</h2>
           <p className="text-xs text-gray-400">

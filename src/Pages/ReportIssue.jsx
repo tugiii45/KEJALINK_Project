@@ -66,7 +66,7 @@ function ReportIssue() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10">
+    <div className="min-h-screen bg-slate-50 px-4 py-10" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
       <div className="max-w-3xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl font-extrabold text-slate-900">Report an Issue</h2>

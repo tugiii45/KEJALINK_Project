@@ -1,1 +1,422 @@
 @import "tailwindcss";
+
+/* Theme system (light/dark) for protected app layout */
+:root {
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --border: #e2e8f0;
+}
+
+html[data-theme='dark'] {
+  --bg: #0b1220;
+  --panel: #0f172a;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --border: #243244;
+}
+
+/* Apply theme colors for app shells that opt-in */
+.theme-bg {
+  background-color: var(--bg);
+}
+
+.theme-text {
+  color: var(--text);
+}
+
+.theme-panel {
+  background-color: var(--panel);
+}
+
+.theme-border {
+  border-color: var(--border);
+}
+
+/* Dark mode overrides for light-mode hardcoded classes */
+html[data-theme='dark'] {
+  /* Sidebar and navigation */
+  aside {
+    background-color: var(--panel);
+    border-color: var(--border);
+  }
+
+  /* Text colors - override light mode defaults */
+  .text-slate-900 {
+    color: var(--text);
+  }
+
+  .text-slate-800 {
+    color: var(--text);
+  }
+
+  .text-slate-700 {
+    color: var(--text);
+  }
+
+  .text-slate-600 {
+    color: var(--muted);
+  }
+
+  .text-slate-500 {
+    color: var(--muted);
+  }
+
+  .text-slate-400 {
+    color: var(--muted);
+  }
+
+  /* Background colors - override light mode defaults */
+  .bg-white {
+    background-color: var(--panel);
+  }
+
+  .bg-slate-50 {
+    background-color: #1a2332;
+  }
+
+  .bg-slate-100 {
+    background-color: #243244;
+  }
+
+  .bg-slate-200 {
+    background-color: #2f3f52;
+  }
+
+  /* Border colors */
+  .border-slate-200 {
+    border-color: var(--border);
+  }
+
+  .border-slate-300 {
+    border-color: var(--border);
+  }
+
+  /* Card backgrounds */
+  .bg-red-50 {
+    background-color: rgba(220, 38, 38, 0.1);
+  }
+
+  /* Navigation active states */
+  .bg-green-50 {
+    background-color: rgba(34, 197, 94, 0.1);
+  }
+
+  .border-green-200 {
+    border-color: #16a34a;
+  }
+
+  .text-green-700 {
+    color: #86efac;
+  }
+
+  /* Hover states */
+  .hover\:bg-slate-50:hover {
+    background-color: #1a2332;
+  }
+
+  .hover\:bg-slate-200:hover {
+    background-color: #2f3f52;
+  }
+
+  .hover\:border-slate-200:hover {
+    border-color: var(--border);
+  }
+
+  /* Red/urgent states */
+  .text-red-700 {
+    color: #fca5a5;
+  }
+
+  .border-l-red-500 {
+    border-left-color: #ef4444;
+  }
+
+  /* Blue states */
+  .border-l-blue-500 {
+    border-left-color: #3b82f6;
+  }
+
+  /* Badge styles */
+  .bg-slate-100.text-slate-600 {
+    background-color: #243244;
+    color: var(--muted);
+  }
+
+  /* Remove shadow for better dark mode appearance or adjust */
+  .shadow-sm {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .hover\:shadow-md:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Form inputs and textareas */
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  textarea,
+  select {
+    background-color: var(--bg);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  input[type='text']::placeholder,
+  input[type='email']::placeholder,
+  input[type='password']::placeholder,
+  textarea::placeholder {
+    color: var(--muted);
+  }
+
+  input[type='text']:focus,
+  input[type='email']:focus,
+  input[type='password']:focus,
+  input[type='number']:focus,
+  textarea:focus,
+  select:focus {
+    background-color: var(--bg);
+    color: var(--text);
+    border-color: #3b82f6;
+    outline: none;
+  }
+
+  /* Table styling */
+  table {
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  thead tr {
+    background-color: #1a2332;
+  }
+
+  tbody tr {
+    border-color: var(--border);
+  }
+
+  tbody tr:hover {
+    background-color: #1a2332;
+  }
+
+  th,
+  td {
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  /* Button styling */
+  button {
+    transition: all 0.2s;
+  }
+
+  .bg-green-600 {
+    background-color: #16a34a;
+  }
+
+  .bg-green-600:hover {
+    background-color: #15803d;
+  }
+
+  /* Gray color overrides for Login and other pages */
+  .bg-gray-50 {
+    background-color: var(--bg);
+  }
+
+  .bg-gray-100 {
+    background-color: #1a2332;
+  }
+
+  .bg-gray-200 {
+    background-color: #243244;
+  }
+
+  .text-gray-400 {
+    color: var(--muted);
+  }
+
+  .text-gray-500 {
+    color: var(--muted);
+  }
+
+  .border-gray-50 {
+    border-color: var(--border);
+  }
+
+  .border-gray-100 {
+    border-color: var(--border);
+  }
+
+  .border-gray-200 {
+    border-color: var(--border);
+  }
+
+  /* Blue color styling (for Login and other UI elements) */
+  .bg-blue-50 {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+
+  .text-blue-600 {
+    color: #60a5fa;
+  }
+
+  .bg-blue-600 {
+    background-color: #1e40af;
+  }
+
+  .bg-blue-600:hover {
+    background-color: #1e3a8a;
+  }
+
+  .bg-blue-700 {
+    background-color: #1e3a8a;
+  }
+
+  .focus\:ring-blue-500:focus {
+    --tw-ring-color: #3b82f6;
+  }
+
+  /* Red error styling */
+  .bg-red-50 {
+    background-color: rgba(220, 38, 38, 0.1);
+  }
+
+  .text-red-600 {
+    color: #f87171;
+  }
+
+  .border-red-100 {
+    border-color: rgba(220, 38, 38, 0.3);
+  }
+
+  /* Disabled button states */
+  .disabled\:bg-blue-400:disabled {
+    background-color: #3b82f6;
+  }
+
+  /* Shadow adjustments for dark mode */
+  .shadow-blue-100 {
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Heading colors for dark mode */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--text);
+  }
+
+  p {
+    color: var(--text);
+  }
+
+  label {
+    color: var(--text);
+  }
+
+  /* Body and main content */
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  main,
+  .main-content {
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  /* Additional blue color variations */
+  .text-blue-800 {
+    color: #93c5fd;
+  }
+
+  .text-blue-900 {
+    color: #bfdbfe;
+  }
+
+  /* Emerald/green color variations */
+  .bg-emerald-50 {
+    background-color: rgba(16, 185, 129, 0.1);
+  }
+
+  .border-emerald-200 {
+    border-color: #6ee7b7;
+  }
+
+  .text-emerald-800 {
+    color: #a7f3d0;
+  }
+
+  .hover\:bg-emerald-100:hover {
+    background-color: rgba(16, 185, 129, 0.2);
+  }
+
+  .text-emerald-600 {
+    color: #10b981;
+  }
+
+  /* Amber/yellow color variations */
+  .bg-amber-50 {
+    background-color: rgba(251, 146, 60, 0.1);
+  }
+
+  .bg-amber-500 {
+    background-color: #f59e0b;
+  }
+
+  .border-amber-100 {
+    border-color: #fed7aa;
+  }
+
+  .text-amber-900 {
+    color: #fef3c7;
+  }
+
+  .shadow-amber-100 {
+    box-shadow: 0 10px 15px -3px rgba(251, 146, 60, 0.1);
+  }
+
+  /* Red color variations (for declined/error states) */
+  .shadow-red-100 {
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.1);
+  }
+
+  /* Emerald color variations (for verified/success states) */
+  .shadow-emerald-100 {
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1);
+  }
+
+  .bg-emerald-500 {
+    background-color: #10b981;
+  }
+
+  /* Dark gray backgrounds for headers */
+  .bg-gray-900 {
+    background-color: #0b1220;
+    color: #e5e7eb;
+  }
+
+  .bg-gray-100.text-gray-600:hover {
+    background-color: #243244;
+  }
+
+  .text-amber-400 {
+    color: #fbbf24;
+  }
+
+  .text-amber-600 {
+    color: #d97706;
+  }
+
+  .text-gray-300 {
+    color: var(--muted);
+  }
+}
+

@@ -39,7 +39,7 @@ function TicketQueue() {
   }, [tickets, statusFilter, priorityFilter])
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
+    <div className="min-h-screen bg-slate-50 px-4 py-8" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">

@@ -45,6 +45,7 @@ function AppLayout() {
       {/* Sidebar is fixed; keep main offset so content doesn't go under it */}
       <Sidebar />
       <main
+        className="theme-bg theme-text"
         style={{
           flex: 1,
           padding: '20px',
