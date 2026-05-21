@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom'
 
 // Thin wrapper so we can pass the original props expected by Signup.jsx
 // while using router-based navigation.
-import SignUp from '../Pages/Signup'
+import SignUp from '../Pages/SignUp'
 
 export default function SignUpShim() {
   const navigate = useNavigate()

@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { addTicket } from '../Features/MaintenanceSlice'
 import ServiceCard from '../Components/ServiceCard'
-import NoticeCard from '../Components/Noticecard'
+import NoticeCard from '../Components/NoticeCard'
 
 function TenantDashboard() {
   const dispatch = useDispatch()

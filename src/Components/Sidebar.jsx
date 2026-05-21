@@ -38,7 +38,7 @@ function Sidebar() {
 
   return (
     <aside
-      className="h-full w-64 bg-white border-r border-slate-200 px-4 py-6 flex flex-col"
+      className="fixed top-0 bottom-0 left-0 w-64 bg-white border-r border-slate-200 px-4 py-6 flex flex-col"
       style={{ boxShadow: '0 1px 2px rgba(15, 23, 42, 0.06)' }}
     >
       <div className="mb-6">

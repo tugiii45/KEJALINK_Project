@@ -42,8 +42,17 @@ function AppLayout() {
 
   return (
     <div style={{ display: 'flex' }}>
+      {/* Sidebar is fixed; keep main offset so content doesn't go under it */}
       <Sidebar />
-      <main style={{ flex: 1, padding: '20px' }}>
+      <main
+        style={{
+          flex: 1,
+          padding: '20px',
+          marginLeft: '16rem', // matches Sidebar w-64
+          height: '100vh',
+          overflowY: 'auto',
+        }}
+      >
         <Outlet />
       </main>
     </div>
