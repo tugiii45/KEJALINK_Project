@@ -38,8 +38,10 @@ function Sidebar() {
   const handleLogout = () => {
     // Dispatch logout action to clear auth state from Redux
     dispatch(logout())
-    // Redirect user to home page
-    navigate('/', { replace: true })
+    // Small delay to ensure Redux state updates, then redirect to landing page
+    setTimeout(() => {
+      navigate('/', { replace: true })
+    }, 100)
   }
 
 
