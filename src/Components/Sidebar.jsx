@@ -33,8 +33,9 @@ function Sidebar() {
   const role = user?.role || 'tenant'
 
   const handleLogout = () => {
-    navigate('/login')
+    navigate('/')
   }
+
 
   return (
     <aside
