@@ -5,24 +5,35 @@ import { auth, db } from '../../firebase';
 // Signs in using Google popup, then returns the Firestore user profile.
 // Assumes Firestore users are stored at users/{uid} with at least { uid, role }.
 export async function signInWithGoogle() {
+  // Behave like "sign in straight with Google".
+  // If the user doesn't have a Firestore profile yet, create a default one.
   const provider = new GoogleAuthProvider();
 
-  // Optional: if you want to restrict to specific accounts/scopes, configure provider here.
   const userCredential = await signInWithPopup(auth, provider);
   const fbUser = userCredential.user;
 
   const userDocRef = doc(db, 'users', fbUser.uid);
   const userDocSnap = await getDoc(userDocRef);
 
-  // Option 1 (configured): map to existing profile only.
-  if (!userDocSnap.exists()) {
-    throw new Error(
-      'No account profile found for this Google user. Please use Sign Up / create your ledger profile first.'
-    );
+  if (userDocSnap.exists()) {
+    return userDocSnap.data();
   }
 
-  return userDocSnap.data();
+  const profileData = {
+    uid: fbUser.uid,
+    fullName: fbUser.displayName || '',
+    email: fbUser.email || '',
+    // Default role/house info for new Google users.
+    // You can adjust these defaults to match your onboarding flow.
+    role: 'Tenant',
+    houseNumber: 'N/A',
+    createdAt: new Date().toISOString(),
+  };
+
+  await setDoc(userDocRef, profileData);
+  return profileData;
 }
+
 
 export async function ensureUserProfileForGoogle() {
   const provider = new GoogleAuthProvider();

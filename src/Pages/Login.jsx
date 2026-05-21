@@ -20,6 +20,10 @@ import { auth, db } from '../../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { loginSuccess } from '../Features/AuthSlice'
+import { signInWithGoogle } from '../Utils/googleSignIn'
+
+
+
 
 function Login({ onLoginSuccess, onToggleToSignUp }) {
   // Redux hook to update global auth state after successful login
@@ -163,6 +167,35 @@ function Login({ onLoginSuccess, onToggleToSignUp }) {
           >
             {loading ? 'Verifying Credentials...' : 'Secure Access'}
           </button>
+
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  setError('');
+                  setLoading(true);
+                  const profile = await signInWithGoogle();
+                  dispatch(loginSuccess(profile));
+
+                  const role = (profile?.role || '').toLowerCase();
+                  if (role === 'tenant') navigate('/tenant-dashboard', { replace: true });
+                  else if (role === 'landlord') navigate('/landlord-dashboard', { replace: true });
+                  else navigate('/', { replace: true });
+                } catch (e) {
+                  setError(e?.message || 'Google login failed');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              disabled={loading}
+              className="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
+              <span aria-hidden="true">G</span>
+              {loading ? 'Signing in...' : 'Sign in with Google'}
+            </button>
+          </div>
+
         </form>
 
         {/* Clean, inline switcher footer */}
