@@ -100,15 +100,8 @@ function LandlordDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
       <div className="max-w-6xl mx-auto">
-        {/* Quick navigation for landlord to verify payments */}
-        <div className="mb-4">
-          <a
-            href="/PaymentDashboard"
-            className="inline-flex items-center rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100"
-          >
-            Verify Payments
-          </a>
-        </div>
+        
+       
         {/* Overview */}
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">

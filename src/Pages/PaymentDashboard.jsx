@@ -13,11 +13,10 @@
  * - Decline button to reject payment (changes status to 'Declined')
  * - Link to payment verification from LandlordDashboard
  * 
+ * 
  * CRITICAL: Payments are synced in real-time from Firestore via onSnapshot listener.
  * When a tenant submits a payment, it's saved to Firestore AND synced back to Redux.
  * This ensures both users see the payment immediately.
- * 
- * BUG FIX: dispatch(upsertPaymentFromServer) now properly syncs Firestore to Redux
  */
 
 import React, { useEffect, useState } from 'react'
