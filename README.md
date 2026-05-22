@@ -7,7 +7,7 @@ Managing tenant-landlord relationshipsis often bogged down by fragmented communi
 
 KejaLink bridges this gap as a modern Property Technology (PropTech) and fintech-integrated platform designed to streamline and humanize property managemenT. By centralizing communication, the platform provides real-time maintenance ticketing, automated rent status tracking, and distinct, secure dashboard experiences tailored specifically to the needs of both tenants and landlords. 
 
----
+
 
 ## 3. Technologies Used
 The application is engineered using a robust, modern frontend architecture paired with scalable cloud services:
@@ -18,7 +18,7 @@ The application is engineered using a robust, modern frontend architecture paire
 *   *Authentication:* Firebase Auth
 *   *Styling:* Tailwind CSS
 
----
+
 
 ## 4. Main Platform Pages
 To maintain strict structural clarity, the application's view engine is mapped to dedicated role-based routes:
@@ -29,7 +29,7 @@ To maintain strict structural clarity, the application's view engine is mapped t
 *   */MAINTENANCE:* The central ticketing hub where tenants can submit new repair requests and landlords can view, update, and resolve ongoing issues.
 *   */PAYMENTS:* A dedicated fintech workflow interface tracking transaction history, payment confirmations, and localized rent tracking logs.
 
----
+
 
 ## 5. Contribution to the Project
 Contributions are highly encouraged! Please follow these steps to contribute to KejaLink:
