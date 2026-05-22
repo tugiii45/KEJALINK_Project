@@ -42,3 +42,27 @@ Contributions are highly encouraged! Please follow these steps to contribute to 
 3. Git clone in Git bash.
 
 4. Install dependencies ```npm install```
+
+## 6. Firebase Setup Guide
+
+Follow these steps to configure Firebase and get the project running locally.
+
+### a. Create a firebase project.
+
+- Go to the firebase console on google and click on 'Add project'
+- Give your project a name and you can optionally turn off google analytics if dont need it then click on 'Create Project'.
+ 
+### b. Register you web app.
+
+- On your firebase project dashboard, click the web icon (</>)
+- Enter an app nickname and click 'Register'
+- firebase will display a 'firebaseConfig' object containing your API keys which you will need next.
+
+### c. Configure Environment Variables
+
+- Create a new file named `.env.local.` in the root directory.
+- Now copy the values from your firebase console.
+
+### d. Install dependencies and run
+
+## AUTHOR: Conrad Mutugi
