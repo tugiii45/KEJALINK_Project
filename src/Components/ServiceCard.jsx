@@ -17,8 +17,6 @@
  * - Badge positioned top-right
  */
 
-import React from 'react'
-
 function ServiceCard({icon, title, description, badgeText, onCardClick}) {
   return (
     <>

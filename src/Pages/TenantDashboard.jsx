@@ -18,20 +18,17 @@
  * - Redux maintenance state: user's maintenance tickets
  */
 
-import React, { useMemo, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
-import { addTicket } from '../Features/MaintenanceSlice'
 import ServiceCard from '../Components/ServiceCard'
 import NoticeCard from '../Components/NoticeCard'
 
 function TenantDashboard() {
-  const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  // Redux: Fetch maintenance tickets and notices from global state
-  const { tickets } = useSelector((state) => state.maintenance)
+  // Redux: Fetch notices from global state
   const { notices } = useSelector((state) => state.notices)
 
   // Feature cards data - memoized to prevent re-rendering on every render
@@ -56,58 +53,10 @@ function TenantDashboard() {
     []
   )
 
-  // Local form state for submitting maintenance requests
-  const [unit, setUnit] = useState('')           // Which unit has the issue
-  const [description, setDescription] = useState('') // Detailed description of problem
-  const [priority, setPriority] = useState('Medium') // How urgent is this issue
-  
-  // Inline message state for form validation feedback
-  const [message, setMessage] = useState(null)   // { type: 'error'|'success', text: string }
-
-  // Handle form submission when tenant submits a maintenance request
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    // Validate that all required fields are filled
-    if (!unit.trim() || !description.trim()) {
-      setMessage({ type: 'error', text: 'Please fill out all required fields' })
-      return
-    }
-
-    // Create a new maintenance ticket object
-    const newTicket = {
-      id: Date.now().toString(),        // Unique ID based on current timestamp
-      unit: unit.trim(),
-      description: description.trim(),
-      priority,
-      status: 'Pending',                // Landlord will update this to 'In Progress' or 'Resolved'
-    }
-
-    // Add to Redux state so it appears immediately in the table below
-    dispatch(addTicket(newTicket))
-
-    // Clear form fields for next submission
-    setUnit('')
-    setDescription('')
-    setPriority('Medium')
-    // Show success message and auto-clear after 3 seconds
-    setMessage({ type: 'success', text: 'Maintenance request submitted successfully!' })
-    setTimeout(() => setMessage(null), 3000)
-  }
+  // Tenant requests are submitted from the dedicated maintenance page, not this overview.
 
   return (
     <>
-      {/* Inline message display for form feedback */}
-      {message && (
-        <div className={`mb-6 p-4 rounded-lg border ${
-          message.type === 'error' 
-            ? 'bg-red-50 border-red-200 text-red-800' 
-            : 'bg-green-50 border-green-200 text-green-800'
-        }`}>
-          {message.type === 'error' ? '❌' : '✅'} {message.text}
-        </div>
-      )}
-
       {/* Page header section */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">KejaLink Tenant Portal</h1>

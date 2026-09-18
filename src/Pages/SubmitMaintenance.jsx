@@ -16,7 +16,7 @@
  * - Clears the form fields
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 function SubmitMaintenance() {
   const [formData, setFormData] = useState({

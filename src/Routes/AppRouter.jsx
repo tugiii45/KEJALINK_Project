@@ -10,12 +10,12 @@
  * Navigation guards redirect unauthenticated users back to /login
  */
 
-import React from 'react'
 import {
   createBrowserRouter,
   RouterProvider,
   Outlet,
   Navigate,
+  useLocation,
 } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
@@ -39,7 +39,12 @@ import Sidebar from '../Components/Sidebar'
 // Role-based route protection component
 function RoleProtectedRoute({ requiredRole, children }) {
   // Get user object from Redux auth state
-  const { user } = useSelector((state) => state.auth)
+  const { user, isAuthenticated } = useSelector((state) => state.auth)
+
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" replace />
+  }
+
   // Convert user role to lowercase for case-insensitive comparison
   const userRole = user?.role?.toLowerCase()
   const requiredRoleLower = requiredRole.toLowerCase()
@@ -57,8 +62,13 @@ function RoleProtectedRoute({ requiredRole, children }) {
 function AppLayout() {
   // Check if user is authenticated from Redux store
   const { isAuthenticated } = useSelector((state) => state.auth)
+  const location = useLocation()
 
   // Allow the public landing page at '/' even when not authenticated.
+  if (!isAuthenticated && location.pathname !== '/') {
+    return <Navigate to="/login" replace />
+  }
+
   if (!isAuthenticated) {
     return <Outlet />
   }
@@ -147,9 +157,6 @@ const router = createBrowserRouter([
     element: <Navigate to="/login" replace />,
   },
 ])
-
-// 3) Named export for App.jsx
-export { router }
 
 export default function AppRouter() {
   return <RouterProvider router={router} />

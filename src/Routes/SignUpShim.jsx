@@ -8,7 +8,7 @@
  * but we use React Router for navigation. This shim converts between the two.
  */
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 // Thin wrapper so we can pass the original props expected by Signup.jsx

@@ -11,9 +11,9 @@
  * - onUserAuthenticated: Callback when user successfully logs in or signs up
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Login from '../Pages/Login'
-import SignUp from '../Pages/Signup'
+import SignUp from '../Pages/SignUp'
 
 function AuthGateway({ onUserAuthenticated }) {
   const [isNewUser, setIsNewUser] = useState(false)

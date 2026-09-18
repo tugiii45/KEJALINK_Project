@@ -14,8 +14,6 @@
  
  */
 
-import React from 'react'
-
 function NoticeCard({ title, message, date, category, importance }) {
   // Determine if this is an urgent notice (high importance = urgent)
   const isUrgent = importance === 'high'

@@ -19,7 +19,7 @@
  * Data flows to LandlordDashboard where landlord can manage tickets
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 function ReportIssue() {
   // Form state object - stores all issue details entered by tenant

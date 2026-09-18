@@ -22,7 +22,6 @@
  * - Responsive design
  */
 
-import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../Features/AuthSlice'
@@ -74,9 +73,7 @@ function Sidebar() {
                 // Apply theme to document element
                 document.documentElement.setAttribute('data-theme', next)
                 // Persist theme preference to localStorage for next session
-                try {
-                  localStorage.setItem('theme', next)
-                } catch {}
+                localStorage.setItem('theme', next)
               }}
               className="px-2.5 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
               style={{ 

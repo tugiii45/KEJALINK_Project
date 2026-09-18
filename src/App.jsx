@@ -6,12 +6,10 @@
  * This component doesn't render much itself - it just provides routing context.
  */
 
-import React from 'react'
-import { RouterProvider } from 'react-router-dom'
-import { router } from './Routes/AppRouter.jsx'
+import AppRouter from './Routes/AppRouter.jsx'
 
 function App() {
-  return <RouterProvider router={router} />
+  return <AppRouter />
 }
 
 export default App

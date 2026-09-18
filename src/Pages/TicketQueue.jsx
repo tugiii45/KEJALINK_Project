@@ -17,7 +17,7 @@
  * To update status, landlord goes to LandlordDashboard and clicks status buttons
  */
 
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 function TicketQueue() {

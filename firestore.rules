@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Temporary development rules so the app can create user profiles,
+    // payment records, and maintenance tickets without Firestore permission failures.
+    // Tighten before production deployment.
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -6,7 +6,7 @@
  * - View their maintenance ticket history
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { addTicket } from '../Features/MaintenanceSlice'

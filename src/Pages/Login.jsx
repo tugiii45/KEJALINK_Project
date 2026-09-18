@@ -11,7 +11,7 @@
  * Important: AppRouter checks Redux auth.isAuthenticated to protect routes
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { auth, db } from '../../firebase';
@@ -25,7 +25,7 @@ import { signInWithGoogle } from '../Utils/googleSignIn'
 
 
 
-function Login({ onLoginSuccess, onToggleToSignUp }) {
+function Login({ onLoginSuccess }) {
   // Redux hook to update global auth state after successful login
   const dispatch = useDispatch();
   // Router hook for programmatic navigation to dashboards

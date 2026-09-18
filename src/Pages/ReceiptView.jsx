@@ -15,8 +15,6 @@
  * - receipt: Payment object from Redux state
  */
 
-import React from 'react';
-
 function ReceiptView({ receipt }) {
   // Don't render anything if no receipt data provided
   if (!receipt) return null;

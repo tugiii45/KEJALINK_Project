@@ -19,13 +19,13 @@
  * This ensures both users see the payment immediately.
  */
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import ReceiptView from './ReceiptView'
 import { addPayment, updatePaymentStatus } from '../Features/PaymentSlice'
 import { db } from '../../firebase'
-import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, updateDoc, getDocs } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, query, onSnapshot, doc, updateDoc, getDocs } from 'firebase/firestore'
 import { upsertPaymentFromServer } from '../Features/PaymentLedgerSlice'
 
 
@@ -61,7 +61,8 @@ function PaymentDashboard() {
 
 
   const [loading, setLoading] = useState(false)
-  const [currentReceipt, setCurrentReceipt] = useState(null)
+  const [currentReceiptId, setCurrentReceiptId] = useState(null)
+  const currentReceipt = paymentHistory.find((payment) => payment.id === currentReceiptId) ?? null
   
   // Inline message state for form feedback
   const [feedbackMessage, setFeedbackMessage] = useState(null) // { type: 'error'|'success', text: string }
@@ -179,17 +180,6 @@ function PaymentDashboard() {
     // Cleanup: unsubscribe from listener when component unmounts
     return () => unsub()
   }, [dispatch])
-
-  // Keep receipt preview in sync with latest payment data from ledger
-  useEffect(() => {
-    if (!currentReceipt) return
-    // Find updated payment data in ledger
-    const updated = paymentHistory.find((p) => p.id === currentReceipt.id)
-    if (!updated) return
-    // Update receipt view with latest data (especially status changes)
-    setCurrentReceipt(updated)
-  }, [paymentHistory, currentReceipt])
-
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
@@ -320,7 +310,7 @@ function PaymentDashboard() {
             <div className="w-full space-y-4">
               <ReceiptView receipt={currentReceipt} />
               <button
-                onClick={() => setCurrentReceipt(null)}
+                onClick={() => setCurrentReceiptId(null)}
                 className="w-full py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 text-xs font-semibold rounded-lg transition-colors"
               >
                 Close Focus Window
@@ -396,7 +386,7 @@ function PaymentDashboard() {
                   <td className="p-3">
                     <div className="flex justify-center items-center gap-2">
                       <button
-                        onClick={() => setCurrentReceipt(item)}
+                        onClick={() => setCurrentReceiptId(item.id)}
                         className="px-2 py-1 text-gray-600 hover:bg-gray-100 rounded border font-medium"
                       >
                         View

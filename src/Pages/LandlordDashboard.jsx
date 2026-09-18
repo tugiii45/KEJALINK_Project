@@ -18,7 +18,7 @@
  * - Redux notices state: all posted notices
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { updateTicketStatus } from '../Features/MaintenanceSlice'
@@ -88,10 +88,9 @@ function LandlordDashboard() {
 
   const handleStatusTransition = (ticketId, currentStatus) => {
     // Implement one-way status flow: Pending → In Progress → Resolved
-    let nextStatus = 'Pending'
-    if (currentStatus === 'Pending') nextStatus = 'In Progress' // Accept the request
-    else if (currentStatus === 'In Progress') nextStatus = 'Resolved' // Mark as fixed/complete
-    else return // Resolved tickets cannot be transitioned further
+    const nextStatus = currentStatus === 'Pending' ? 'In Progress' : currentStatus === 'In Progress' ? 'Resolved' : null
+
+    if (!nextStatus) return
 
     // Update ticket status in Redux store
     dispatch(updateTicketStatus({ id: ticketId, status: nextStatus }))

@@ -13,7 +13,7 @@
  * - Landlord: /landlord-dashboard (verify payments, manage tickets, post notices)
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { auth, db } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -61,7 +61,7 @@ function SignUp({ onSignUpSuccess, onToggleToLogin }) {
       // Save profile document to Firestore
       await setDoc(doc(db, 'users', user.uid), profileData);
       // Call success callback to redirect to dashboard
-      onSignUpSuccess(profileData);
+      if (typeof onSignUpSuccess === 'function') onSignUpSuccess(profileData);
     } catch (err) {
       console.error(err);
       // Handle specific Firebase errors
