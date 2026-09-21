@@ -2,30 +2,64 @@
  * Tenant Maintenance Page
  *
  * Dedicated page for tenants to:
- * - Submit a maintenance request
- * - View their maintenance ticket history
+ * - Submit a maintenance request (saved to Firestore 'maintenance' collection)
+ * - View their own maintenance ticket history (live, via onSnapshot)
+ *
+ * Firestore rules require every ticket to carry tenantUid, and tenants may
+ * only query tickets where tenantUid == their own uid.
  */
 
-import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-
-import { addTicket } from '../Features/MaintenanceSlice'
+import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { db } from '../../firebase'
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  onSnapshot,
+  serverTimestamp,
+} from 'firebase/firestore'
 
 function TenantMaintenance() {
-  const dispatch = useDispatch()
+  const { user } = useSelector((state) => state.auth)
 
-  // Redux: Fetch maintenance tickets from global state
-  const { tickets } = useSelector((state) => state.maintenance)
+  // Tickets come straight from Firestore (only this tenant's tickets)
+  const [tickets, setTickets] = useState([])
 
   // Local form state for submitting maintenance requests
-  const [unit, setUnit] = useState('')
+  const [unit, setUnit] = useState(user?.houseNumber ?? '')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState('Medium')
-  
-  // Inline message state for form validation feedback
-  const [message, setMessage] = useState(null)   // { type: 'error'|'success', text: string }
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (e) => {
+  // Inline message state for form feedback
+  const [message, setMessage] = useState(null) // { type: 'error'|'success', text: string }
+
+  // Live listener: only this tenant's tickets (required by the security rules)
+  useEffect(() => {
+    if (!user?.uid) return
+
+    const q = query(collection(db, 'maintenance'), where('tenantUid', '==', user.uid))
+
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        // Newest first. createdAt is null briefly while the server timestamp resolves.
+        list.sort((a, b) => (b.createdAt?.toMillis?.() ?? Infinity) - (a.createdAt?.toMillis?.() ?? Infinity))
+        setTickets(list)
+      },
+      (err) => {
+        console.error('[TenantMaintenance] snapshot error:', err)
+        setMessage({ type: 'error', text: 'Could not load your maintenance requests.' })
+      }
+    )
+
+    return () => unsub()
+  }, [user?.uid])
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!unit.trim() || !description.trim()) {
@@ -33,22 +67,35 @@ function TenantMaintenance() {
       return
     }
 
-    const newTicket = {
-      id: Date.now().toString(),
-      unit: unit.trim(),
-      description: description.trim(),
-      priority,
-      status: 'Pending',
+    if (!user?.uid) {
+      setMessage({ type: 'error', text: 'You are not signed in. Please log in again.' })
+      return
     }
 
-    dispatch(addTicket(newTicket))
+    setSubmitting(true)
+    try {
+      await addDoc(collection(db, 'maintenance'), {
+        tenantUid: user.uid,
+        tenantName: user.fullName ?? '',
+        unit: unit.trim(),
+        description: description.trim(),
+        priority,
+        status: 'Pending',
+        createdAt: serverTimestamp(),
+      })
 
-    setUnit('')
-    setDescription('')
-    setPriority('Medium')
-    // Show success message and auto-clear after 3 seconds
-    setMessage({ type: 'success', text: 'Maintenance request submitted successfully!' })
-    setTimeout(() => setMessage(null), 3000)
+      setUnit(user?.houseNumber ?? '')
+      setDescription('')
+      setPriority('Medium')
+      setMessage({ type: 'success', text: 'Maintenance request submitted successfully!' })
+    } catch (err) {
+      console.error(err)
+      setMessage({ type: 'error', text: 'Failed to submit request. Please try again.' })
+    } finally {
+      setSubmitting(false)
+      // Auto-clear the message after 3 seconds
+      setTimeout(() => setMessage(null), 3000)
+    }
   }
 
   return (
@@ -60,11 +107,13 @@ function TenantMaintenance() {
 
       {/* Inline message display for form feedback */}
       {message && (
-        <div className={`mb-6 p-4 rounded-lg border ${
-          message.type === 'error' 
-            ? 'bg-red-50 border-red-200 text-red-800' 
-            : 'bg-green-50 border-green-200 text-green-800'
-        }`}>
+        <div
+          className={`mb-6 p-4 rounded-lg border ${
+            message.type === 'error'
+              ? 'bg-red-50 border-red-200 text-red-800'
+              : 'bg-green-50 border-green-200 text-green-800'
+          }`}
+        >
           {message.type === 'error' ? '❌' : '✅'} {message.text}
         </div>
       )}
@@ -111,16 +160,17 @@ function TenantMaintenance() {
 
           <button
             type="submit"
-            className="rounded bg-green-600 px-4 py-2 text-white font-semibold hover:bg-green-700 transition-colors"
+            disabled={submitting}
+            className="rounded bg-green-600 px-4 py-2 text-white font-semibold hover:bg-green-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Submit Maintenance Request
+            {submitting ? 'Submitting...' : 'Submit Maintenance Request'}
           </button>
         </form>
       </div>
 
       <h2 className="text-xl font-bold text-slate-800 mb-4 mt-10">Your Maintenance History</h2>
 
-      <div>
+      <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-slate-200">
           <thead>
             <tr className="bg-slate-50">
@@ -142,7 +192,10 @@ function TenantMaintenance() {
               tickets.map((ticket) => (
                 <tr key={ticket.id}>
                   <td className="border border-slate-200 p-2">{ticket.unit}</td>
-                  <td className="border border-slate-200 p-2">{ticket.description}</td>
+                  <td className="border border-slate-200 p-2">
+                    {ticket.title && <div className="font-semibold">{ticket.title}</div>}
+                    {ticket.description}
+                  </td>
                   <td className="border border-slate-200 p-2">{ticket.priority}</td>
                   <td className="border border-slate-200 p-2">
                     <strong>{ticket.status}</strong>
@@ -158,4 +211,3 @@ function TenantMaintenance() {
 }
 
 export default TenantMaintenance
-

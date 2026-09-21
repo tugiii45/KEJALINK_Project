@@ -1,77 +1,98 @@
 /**
  * Report Issue Page
- * 
+ *
  * Dedicated form for tenants to report maintenance issues.
- * Similar to the form on TenantDashboard but with more detail.
- * 
+ *
  * Form fields:
  * - Issue Title (e.g., "Leaking kitchen sink")
  * - Unit Number (which apartment/house)
  * - Category (Plumbing, Security, Electrical, Garbage, Other)
  * - Description (detailed explanation of the problem)
- * - Urgency Level (Low, Medium, High)
- * 
+ * - Urgency Level (Low, Medium, High, Emergency)
+ *
  * On submit:
- * - Adds ticket to Redux maintenance state
+ * - Saves a ticket to the Firestore 'maintenance' collection
+ *   (same collection TenantMaintenance reads from)
  * - Displays success/error message
  * - Clears form for next submission
- * 
- * Data flows to LandlordDashboard where landlord can manage tickets
  */
 
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { db } from '../../firebase'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+
+// Ticket priority is stored capitalised so it matches TenantMaintenance
+const PRIORITY_LABELS = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  emergency: 'Emergency',
+}
 
 function ReportIssue() {
+  const { user } = useSelector((state) => state.auth)
+
   // Form state object - stores all issue details entered by tenant
   const [formData, setFormData] = useState({
-    title: '',              // Issue headline (e.g., "Leaking sink")
-    category: 'maintenance', // Type of issue (Plumbing, Security, etc)
-    description: '',        // Detailed problem description
-    urgency: 'medium',      // Priority level: low, medium, high, emergency
-    unitNumber: '',         // Which apartment/unit has the problem
+    title: '',
+    category: 'maintenance',
+    description: '',
+    urgency: 'medium',
+    unitNumber: user?.houseNumber ?? '',
   })
 
-  // Loading state while form is being submitted
   const [isSubmitting, setIsSubmitting] = useState(false)
-  // Status message: null, 'success', or 'error' for user feedback
+  // null, 'success' or 'error'
   const [submitStatus, setSubmitStatus] = useState(null)
 
   // Update form state when user types in any field
   const handleChange = (e) => {
     const { name, value } = e.target
-    // Update specific field in formData while keeping other fields unchanged
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }))
   }
 
-  // Handle form submission - validate and process issue report
+  // Save the issue to Firestore
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsSubmitting(true)
     setSubmitStatus(null)
 
-    try {
-      // Simulate API call delay (in real app, this would send to Firebase/backend)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+    if (!user?.uid) {
+      console.error('ReportIssue: no signed-in user')
+      setSubmitStatus('error')
+      return
+    }
 
-      // Show success message to user
+    setIsSubmitting(true)
+
+    try {
+      await addDoc(collection(db, 'maintenance'), {
+        tenantUid: user.uid,                 // required by security rules
+        tenantName: user.fullName ?? '',
+        unit: formData.unitNumber.trim(),
+        title: formData.title.trim(),
+        category: formData.category,
+        description: formData.description.trim(),
+        priority: PRIORITY_LABELS[formData.urgency] ?? 'Medium',
+        status: 'Pending',                   // required by security rules
+        createdAt: serverTimestamp(),
+      })
+
       setSubmitStatus('success')
-      // Clear form fields after successful submission
       setFormData({
         title: '',
         category: 'maintenance',
         description: '',
         urgency: 'medium',
-        unitNumber: '',
+        unitNumber: user?.houseNumber ?? '',
       })
     } catch (error) {
-      // Handle submission errors
       console.error(error)
       setSubmitStatus('error')
     } finally {
-      // Re-enable submit button whether submission succeeded or failed
       setIsSubmitting(false)
     }
   }
@@ -157,7 +178,7 @@ function ReportIssue() {
                   <option value="maintenance">Plumbing & Maintenance</option>
                   <option value="security">Security</option>
                   <option value="electrical">Electrical</option>
-                  <option value="Garbage">Garbage and Cleanliness</option>
+                  <option value="garbage">Garbage and Cleanliness</option>
                   <option value="other">Other</option>
                 </select>
               </div>
@@ -220,4 +241,3 @@ function ReportIssue() {
 }
 
 export default ReportIssue
-

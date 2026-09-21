@@ -71,7 +71,7 @@ function Login({ onLoginSuccess }) {
         dispatch(loginSuccess(profile)); // This unlocks protected routes
 
         // Step 3: Route to appropriate dashboard based on user role
-        const role = profile?.role?.toLowerCase();
+        const role = profile?.role?.toString().trim().toLowerCase();
         console.log('Login profile role:', profile?.role, 'normalized:', role);
         if (role === 'tenant') {
           // Tenant goes to rental/maintenance dashboard
@@ -196,7 +196,7 @@ function Login({ onLoginSuccess }) {
                   const profile = await signInWithGoogle();
                   dispatch(loginSuccess(profile));
 
-                  const role = (profile?.role || '').toLowerCase();
+                  const role = (profile?.role || '').toString().trim().toLowerCase();
                   if (role === 'tenant') navigate('/tenant-dashboard', { replace: true });
                   else if (role === 'landlord') navigate('/landlord-dashboard', { replace: true });
                   else navigate('/', { replace: true });

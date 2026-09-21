@@ -1,22 +1,22 @@
 /**
  * Payment Dashboard
- * 
+ *
  * Handles rent/utility payments for tenants and payment verification for landlords.
- * 
+ *
  * TENANT VIEW:
  * - Form to submit payment with M-PESA reference code
  * - Shows their own payment history with status
- * 
+ *
  * LANDLORD VIEW:
  * - Table of all tenant payments
  * - Verify button to approve payment (changes status to 'Verified')
  * - Decline button to reject payment (changes status to 'Declined')
- * - Link to payment verification from LandlordDashboard
- * 
- * 
- * CRITICAL: Payments are synced in real-time from Firestore via onSnapshot listener.
- * When a tenant submits a payment, it's saved to Firestore AND synced back to Redux.
- * This ensures both users see the payment immediately.
+ *
+ * Payments are synced in real time from Firestore via an onSnapshot listener.
+ *
+ * Firestore rules note: rules are not filters. Tenants MUST query with
+ * where('tenantUid', '==', uid) or the whole query is denied. Landlords may
+ * query the full collection.
  */
 
 import { useEffect, useState } from 'react'
@@ -25,26 +25,43 @@ import { useDispatch, useSelector } from 'react-redux'
 import ReceiptView from './ReceiptView'
 import { addPayment, updatePaymentStatus } from '../Features/PaymentSlice'
 import { db } from '../../firebase'
-import { collection, addDoc, serverTimestamp, query, onSnapshot, doc, updateDoc, getDocs } from 'firebase/firestore'
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  updateDoc,
+  getDocs,
+} from 'firebase/firestore'
 import { upsertPaymentFromServer } from '../Features/PaymentLedgerSlice'
 
+const getCurrentMonthValue = () => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+}
 
-
-
+const formatMonthLabel = (monthValue) => {
+  const [year, month] = monthValue.split('-').map(Number)
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(year, month - 1, 1))
+}
 
 function PaymentDashboard() {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
 
   // Redux role may come as 'Landlord'/'Tenant' (from Firestore) or lowercase.
-  const normalizedRole = user?.role?.toString().toLowerCase();
+  const normalizedRole = user?.role?.toString().trim().toLowerCase()
   const currentRole = normalizedRole === 'landlord' ? 'Landlord' : 'Tenant'
-
 
   const landlordPayments = useSelector((state) => state.paymentLedger.payments)
 
-  // Ledger should be driven by Firestore-synced paymentLedger.
-  // Tenant previously relied on `state.payments.payments` which is not kept in sync from Firestore.
+  // Ledger is driven by the Firestore-synced paymentLedger.
   const paymentHistory = landlordPayments.filter((p) => {
     if (currentRole === 'Landlord') return true
     // Tenant: only show their own payments (prefer tenantUid).
@@ -54,37 +71,29 @@ function PaymentDashboard() {
     return false
   })
 
-
-
-
-
-
-
   const [loading, setLoading] = useState(false)
   const [currentReceiptId, setCurrentReceiptId] = useState(null)
   const currentReceipt = paymentHistory.find((payment) => payment.id === currentReceiptId) ?? null
-  
+
   // Inline message state for form feedback
   const [feedbackMessage, setFeedbackMessage] = useState(null) // { type: 'error'|'success', text: string }
 
   const [formData, setFormData] = useState({
     amount: '',
     type: 'Rent',
-    month: 'May 2026',
+    month: getCurrentMonthValue(),
     referenceCode: '',
   })
+  const [isCurrentMonth, setIsCurrentMonth] = useState(true)
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    // Update specific form field while keeping other fields unchanged
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   // Tenant submits a payment for landlord verification
-  // Accept activeUser prop object containing the authenticated session profile
   const handleTenantSubmit = async (e, activeUser) => {
     e.preventDefault()
-    // Validate required fields before proceeding
     if (!formData.amount || !formData.referenceCode) return
 
     // Verify user profile has all required information
@@ -95,91 +104,111 @@ function PaymentDashboard() {
     }
 
     setLoading(true)
+    const submittedAt = new Date()
 
     // Generate unique payment ID in format "KL-XXXXXX"
     const generatedId = `KL-${Math.floor(100000 + Math.random() * 900000)}`
 
-    // Create payment record with all transaction details
+    // Plain, serializable payment record (safe for Redux)
     const newPayment = {
       id: generatedId,
       tenantName: activeUser.fullName,
       houseNumber: activeUser.houseNumber,
-      tenantUid: activeUser.uid,  // Link payment to tenant account
+      tenantUid: activeUser.uid, // links payment to tenant account (required by rules)
       amount: parseFloat(formData.amount),
       type: formData.type,
-      month: formData.month,
+      month: formatMonthLabel(formData.month),
       referenceCode: formData.referenceCode.toUpperCase(),
-      date: new Date().toLocaleDateString(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: 'Pending Verification',  // Landlord will change to 'Verified' or 'Declined'
-      createdAt: serverTimestamp(),
+      date: submittedAt.toLocaleDateString(),
+      time: submittedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: 'Pending Verification', // required by rules; landlord changes it later
     }
 
-    // Keep local UI responsive by updating Redux immediately
-    dispatch(addPayment(newPayment))
-
-    // Persist to Firestore so landlord sees it in real-time
     try {
-      await addDoc(collection(db, 'payments'), newPayment)
+      // Persist to Firestore so the landlord sees it in real time.
+      // serverTimestamp() only goes to Firestore, never into Redux.
+      await addDoc(collection(db, 'payments'), { ...newPayment, createdAt: serverTimestamp() })
+
+      // Only update local state after the write succeeded
+      dispatch(addPayment(newPayment))
+
+      setFeedbackMessage({ type: 'success', text: 'Payment submitted for verification.' })
+      // Clear form fields after a successful submission
+      setFormData((prev) => ({
+        ...prev,
+        amount: '',
+        month: getCurrentMonthValue(),
+        referenceCode: '',
+      }))
+      setIsCurrentMonth(true)
     } catch (err) {
       console.error(err)
       setFeedbackMessage({ type: 'error', text: 'Failed to submit payment. Please try again.' })
     } finally {
-      // Clear form fields after submission
-      setFormData((prev) => ({ ...prev, amount: '', referenceCode: '' }))
       setLoading(false)
     }
   }
 
-
-
   // Landlord verifies or declines a payment (update Firestore + sync Redux)
   const handleVerifyStatus = async (id, newStatus) => {
-    // Optimistic UI: Update Redux state immediately for responsive UI
-    dispatch(updatePaymentStatus({ id, status: newStatus }))
-
     try {
-      // Find the Firestore document that matches this payment ID
-      const q = query(collection(db, 'payments'))
-      const snap = await getDocs(q)
-      // Search for document where the 'id' field matches our payment ID
-      const match = snap.docs.find((d) => d.data()?.id === id)
+      // Look up only the matching document instead of downloading every payment
+      const snap = await getDocs(query(collection(db, 'payments'), where('id', '==', id)))
+      const match = snap.docs[0]
       if (!match) {
         console.warn('[PaymentDashboard] Could not find payment doc for id:', id)
+        setFeedbackMessage({ type: 'error', text: 'Payment record not found.' })
         return
       }
 
-      // Update the payment status in Firestore
+      // Update the payment status in Firestore (rules allow landlords to change only 'status')
       await updateDoc(doc(db, 'payments', match.id), { status: newStatus })
+
+      // Update Redux after the database accepted the change
+      dispatch(updatePaymentStatus({ id, status: newStatus }))
     } catch (err) {
       console.error(err)
       setFeedbackMessage({ type: 'error', text: 'Failed to update verification status in database.' })
     }
   }
 
-
-  // Sync all payments from Firestore into Redux state in real-time
+  // Sync payments from Firestore into Redux state in real time
   useEffect(() => {
-    // Query all payments from Firestore collection
-    const q = query(collection(db, 'payments'))
+    // Wait until we know who the user is
+    if (!user?.uid) return
 
-    // Set up real-time listener that fires whenever payments change
-    const unsub = onSnapshot(q, (snap) => {
-      console.log('[PaymentDashboard] payments snapshot size:', snap.size)
-      // Process each payment document
-      snap.forEach((d) => {
-        const data = d.data()
-        // Upsert (insert or update) payment into Redux ledger
-        dispatch(upsertPaymentFromServer({
-          id: data.id ?? d.id,  // Use custom id field or Firestore doc ID
-          ...data,
-        }))
-      })
-    })
+    const base = collection(db, 'payments')
+
+    // Landlords read everything; tenants must filter by their own uid
+    const q =
+      currentRole === 'Landlord'
+        ? query(base)
+        : query(base, where('tenantUid', '==', user.uid))
+
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        snap.forEach((d) => {
+          // Firestore Timestamps are not serializable, so convert before Redux
+          const { createdAt, ...data } = d.data()
+          dispatch(
+            upsertPaymentFromServer({
+              id: data.id ?? d.id, // custom id field, or Firestore doc ID
+              ...data,
+              createdAtMs: createdAt?.toMillis?.() ?? null,
+            })
+          )
+        })
+      },
+      (err) => {
+        console.error('[PaymentDashboard] snapshot error:', err)
+        setFeedbackMessage({ type: 'error', text: 'Could not load payments from the database.' })
+      }
+    )
 
     // Cleanup: unsubscribe from listener when component unmounts
     return () => unsub()
-  }, [dispatch])
+  }, [dispatch, user?.uid, currentRole])
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
@@ -201,8 +230,8 @@ function PaymentDashboard() {
       {/* Inline message display for form feedback */}
       {feedbackMessage && (
         <div className={`p-4 rounded-lg border ${
-          feedbackMessage.type === 'error' 
-            ? 'bg-red-50 border-red-200 text-red-800' 
+          feedbackMessage.type === 'error'
+            ? 'bg-red-50 border-red-200 text-red-800'
             : 'bg-green-50 border-green-200 text-green-800'
         }`}>
           {feedbackMessage.type === 'error' ? '❌' : '✅'} {feedbackMessage.text}
@@ -230,8 +259,6 @@ function PaymentDashboard() {
                 onSubmit={(e) => handleTenantSubmit(e, user)}
                 className="space-y-4"
               >
-
-
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 mb-1">
                     Payment Type
@@ -261,6 +288,41 @@ function PaymentDashboard() {
                     required
                     className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
+                </div>
+
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                  <label className="flex items-center gap-3 text-sm font-semibold text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={isCurrentMonth}
+                      onChange={(e) => {
+                        const checked = e.target.checked
+                        setIsCurrentMonth(checked)
+                        if (checked) {
+                          setFormData((prev) => ({ ...prev, month: getCurrentMonthValue() }))
+                        }
+                      }}
+                      className="h-4 w-4 accent-blue-600"
+                    />
+                    Paying for the current month
+                  </label>
+
+                  {!isCurrentMonth && (
+                    <div className="mt-3">
+                      <label htmlFor="payment-month" className="block text-xs font-semibold text-gray-500 mb-1">
+                        Month this payment covers
+                      </label>
+                      <input
+                        id="payment-month"
+                        type="month"
+                        name="month"
+                        value={formData.month}
+                        onChange={handleChange}
+                        required
+                        className="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -359,6 +421,9 @@ function PaymentDashboard() {
                   <td className="p-3">
                     <div className="font-medium text-gray-700">{item.type}</div>
                     <div className="text-gray-400 text-[10px]">{item.month}</div>
+                    <div className="text-gray-400 text-[10px]">
+                      Submitted {item.date} at {item.time}
+                    </div>
                   </td>
 
                   <td className="p-3 font-mono font-bold tracking-wider text-gray-600 uppercase">
@@ -430,4 +495,3 @@ function PaymentDashboard() {
 }
 
 export default PaymentDashboard
-

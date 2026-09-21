@@ -1,32 +1,48 @@
 /**
  * Submit Maintenance Page
- * 
+ *
  * Dedicated form for landlords to submit a maintenance task.
  * This is separate from the tenant-facing Report Issue page.
- * 
+ *
  * Form fields:
  * - Issue Title
  * - Unit / House Number
  * - Category
  * - Urgency Level
  * - Detailed Description
- * 
+ *
  * On submit:
+ * - Saves a ticket to the Firestore 'maintenance' collection
+ *   (allowed by the security rules only for landlord accounts)
  * - Displays confirmation or error message
  * - Clears the form fields
  */
 
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { db } from '../../firebase'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+
+// Ticket priority is stored capitalised so it matches TenantMaintenance
+const PRIORITY_LABELS = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  emergency: 'Emergency',
+}
+
+const EMPTY_FORM = {
+  title: '',
+  category: 'maintenance',
+  description: '',
+  urgency: 'medium',
+  unitNumber: '',
+}
 
 function SubmitMaintenance() {
-  const [formData, setFormData] = useState({
-    title: '',
-    category: 'maintenance',
-    description: '',
-    urgency: 'medium',
-    unitNumber: '',
-  })
+  const { user } = useSelector((state) => state.auth)
 
+  const [formData, setFormData] = useState(EMPTY_FORM)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState(null)
 
@@ -40,19 +56,32 @@ function SubmitMaintenance() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsSubmitting(true)
     setSubmitStatus(null)
 
+    if (!user?.uid) {
+      console.error('SubmitMaintenance: no signed-in user')
+      setSubmitStatus('error')
+      return
+    }
+
+    setIsSubmitting(true)
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setSubmitStatus('success')
-      setFormData({
-        title: '',
-        category: 'maintenance',
-        description: '',
-        urgency: 'medium',
-        unitNumber: '',
+      await addDoc(collection(db, 'maintenance'), {
+        tenantUid: null,                     // landlord-created, not tied to a tenant
+        landlordUid: user.uid,
+        createdBy: user.fullName ?? 'Landlord',
+        unit: formData.unitNumber.trim(),
+        title: formData.title.trim(),
+        category: formData.category,
+        description: formData.description.trim(),
+        priority: PRIORITY_LABELS[formData.urgency] ?? 'Medium',
+        status: 'Pending',
+        createdAt: serverTimestamp(),
       })
+
+      setSubmitStatus('success')
+      setFormData(EMPTY_FORM)
     } catch (error) {
       console.error(error)
       setSubmitStatus('error')

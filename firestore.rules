@@ -2,6 +2,14 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // True when the signed-in user's profile says they are a landlord
+    function isLandlord() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role.trim().lower() == 'landlord';
+    }
+
+    // users: each person can read/create/update only their own profile
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
 
@@ -9,10 +17,44 @@ service cloud.firestore {
                     && request.auth.uid == userId
                     && request.resource.data.role in ['tenant', 'landlord', 'Tenant', 'Landlord'];
 
+      // Users can edit their profile but never change their own role
       allow update: if request.auth != null
                     && request.auth.uid == userId
                     && request.resource.data.role == resource.data.role;
     }
 
+    // payments: tenants see/create their own, landlords see all
+    // and can only change the status
+    match /payments/{paymentId} {
+      allow read: if request.auth != null
+                  && (resource.data.tenantUid == request.auth.uid || isLandlord());
+
+      allow create: if request.auth != null
+                    && request.resource.data.tenantUid == request.auth.uid
+                    && request.resource.data.status == 'Pending Verification';
+
+      allow update: if isLandlord()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+                    && request.resource.data.status in ['Verified', 'Declined'];
+
+      allow delete: if false;
+    }
+
+    // maintenance: tenants see/create their own tickets, landlords see all,
+    // create tickets, and can only change the status
+    match /maintenance/{ticketId} {
+      allow read: if request.auth != null
+                  && (resource.data.tenantUid == request.auth.uid || isLandlord());
+
+      allow create: if request.auth != null
+                    && ((request.resource.data.tenantUid == request.auth.uid
+                         && request.resource.data.status == 'Pending')
+                        || isLandlord());
+
+      allow update: if isLandlord()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+
+      allow delete: if false;
+    }
   }
 }
