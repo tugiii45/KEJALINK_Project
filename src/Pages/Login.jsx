@@ -34,6 +34,7 @@ function Login({ onLoginSuccess }) {
   // Local state for form fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');       // Display error messages to user
   const [loading, setLoading] = useState(false); // Disable button while submitting
 
@@ -90,6 +91,8 @@ function Login({ onLoginSuccess }) {
       console.error(err);
       const code = err?.code;
 
+      
+
       // Provide helpful error messages based on Firebase error codes
       if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
         // Wrong password error
@@ -100,9 +103,14 @@ function Login({ onLoginSuccess }) {
       } else if (code === 'auth/network-request-failed') {
         // Internet connection issue
         setError('Network error. Please check your internet connection and try again.');
+
+      } else if (code === 'permission-denied') {
+        setError('Signed in, but your profile could not be loaded. Please contact support.');
+      
       } else if (code === 'auth/too-many-requests') {
         // Too many failed login attempts - Firebase security measure
         setError('Too many attempts. Please wait a bit and try again.');
+        
       } else {
         // Other Firebase errors
         setError(err?.message ? err.message.replace('Firebase: ', '') : 'Login failed.');
@@ -143,14 +151,24 @@ function Login({ onLoginSuccess }) {
           {/* Password input field */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                className="w-full p-2.5 pr-16 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute inset-y-0 right-3 text-xs font-semibold text-blue-600 hover:text-blue-700 focus:outline-none"
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
           </div>
 
           {/* Error message display */}

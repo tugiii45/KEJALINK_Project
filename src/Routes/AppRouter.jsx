@@ -17,6 +17,7 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom'
+import { useState } from 'react'
 import { useSelector } from 'react-redux'
 
 // Import Pages
@@ -63,6 +64,7 @@ function AppLayout() {
   // Check if user is authenticated from Redux store
   const { isAuthenticated } = useSelector((state) => state.auth)
   const location = useLocation()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   // Allow the public landing page at '/' even when not authenticated.
   if (!isAuthenticated && location.pathname !== '/') {
@@ -75,15 +77,29 @@ function AppLayout() {
 
   // Authenticated users get the full layout with Sidebar + main content
   return (
-    <div style={{ display: 'flex' }}>
-      {/* Sidebar is fixed; keep main offset so content doesn't go under it */}
-      <Sidebar />
+    <div className="app-shell" style={{ display: 'flex' }}>
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <button
+        type="button"
+        className="mobile-menu-button"
+        onClick={() => setIsSidebarOpen(true)}
+        aria-label="Open navigation menu"
+        aria-expanded={isSidebarOpen}
+      >
+        <span aria-hidden="true">☰</span>
+      </button>
+      {isSidebarOpen && (
+        <button
+          type="button"
+          className="mobile-sidebar-backdrop"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-label="Close navigation menu"
+        />
+      )}
       <main
-        className="theme-bg theme-text"
+        className="app-main theme-bg theme-text"
         style={{
           flex: 1,
-          padding: '20px',
-          marginLeft: '16rem', // matches Sidebar w-64
           height: '100vh',
           overflowY: 'auto',
         }}

@@ -27,7 +27,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../Features/AuthSlice'
 
 
-function Sidebar() {
+function Sidebar({ isOpen, onClose }) {
   const navigate = useNavigate()
 
   const dispatch = useDispatch()
@@ -49,7 +49,7 @@ function Sidebar() {
 
   return (
     <aside
-      className="fixed top-0 bottom-0 left-0 w-64 bg-white border-r border-slate-200 px-4 py-6 flex flex-col"
+      className={`app-sidebar fixed top-0 bottom-0 left-0 w-64 bg-white border-r border-slate-200 px-4 py-6 flex flex-col${isOpen ? ' is-open' : ''}`}
       style={{ 
         boxShadow: '0 1px 2px rgba(15, 23, 42, 0.06)',
         backgroundColor: 'var(--panel)',
@@ -58,13 +58,21 @@ function Sidebar() {
       }}
     >
       <div className="mb-6">
-        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold text-slate-900" style={{ color: 'var(--text)' }}>KejaLink</h2>
             <p className="text-sm text-slate-600 mt-1" style={{ color: 'var(--muted)' }}>Role: {role}</p>
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="mobile-sidebar-close rounded-lg px-2 py-1 text-xl leading-none text-slate-500 hover:bg-slate-100"
+              aria-label="Close navigation menu"
+            >
+              ×
+            </button>
             <button
               type="button"
               onClick={() => {
@@ -89,7 +97,7 @@ function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex flex-col gap-2">
+      <nav className="flex flex-col gap-2" onClick={onClose}>
         {role === 'tenant' ? (
           <>
             {/* Tenant Dashboard - Home overview */}
